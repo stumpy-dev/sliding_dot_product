@@ -24,3 +24,4 @@ if __name__ == "__main__":
 
     for mod in modules:
         npt.assert_almost_equal(ref, mod.sliding_dot_product(Q, T))
+        print(f"PASSED: {mod.__name__}")
