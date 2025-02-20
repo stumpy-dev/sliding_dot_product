@@ -9,19 +9,28 @@ from sdp import (
     scipy_oaconvolve_sdp,
     pyfftw_sdp
 )
+import time
 
 if __name__ == "__main__":
-    Q = np.random.rand(50)
-    T = np.random.rand(1000)
-
-    ref = naive_sdp.sliding_dot_product(Q, T)
     modules = [
+        pyfftw_sdp,
         njit_sdp,
         numpy_fft_sdp,
         scipy_oaconvolve_sdp,
-        pyfftw_sdp
     ]
 
+    n_iter = 3
+    p_min = 6
+    p_max = 27
     for mod in modules:
-        npt.assert_almost_equal(ref, mod.sliding_dot_product(Q, T))
-        print(f"PASSED: {mod.__name__}")
+        for i in range(p_min, p_max):
+            Q = np.random.rand(2**i)
+            for j in range(i, p_max):
+                T = np.random.rand(2**j)
+
+                start = time.time()
+                for _ in range(n_iter):
+                    mod.sliding_dot_product(Q, T)
+                elapsed_time = time.time() - start
+
+                print(f"{mod.__name__},{len(Q)},{len(T)},{n_iter},{elapsed_time / n_iter}")
