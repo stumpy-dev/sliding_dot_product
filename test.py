@@ -25,9 +25,10 @@ if __name__ == "__main__":
     for mod in modules:
         for i in range(p_min, p_max):
             Q = np.random.rand(2**i)
+            break_Q = False
             for j in range(i, p_max):
                 T = np.random.rand(2**j)
-                break_flag = False
+                break_T = False
 
                 elapsed_times = []
                 for _ in range(n_iter):
@@ -35,14 +36,19 @@ if __name__ == "__main__":
                     mod.sliding_dot_product(Q, T)
                     diff = time.time() - start
                     if diff > 10.0:
-                        break_flag = True
+                        break_T = True
                         break
                     else:
                         elapsed_times.append(diff)
 
-                if break_flag:
+                if break_T:
+                    if j == 2 * i:
+                        break_Q = True
                     break
 
                 elapsed_times.remove(min(elapsed_times))  # Remove smallest number from the list
 
                 print(f"{mod.__name__},{len(Q)},{len(T)},{n_iter},{sum(elapsed_times) / len(elapsed_times)}", flush=True)
+
+            if break_Q:
+                break
