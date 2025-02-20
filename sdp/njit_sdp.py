@@ -2,6 +2,7 @@ import numpy as np
 from numba import njit
 import sdp
 
+
 @njit(fastmath=True)
 def _sliding_dot_product(Q, T):
     m = len(Q)
@@ -19,6 +20,7 @@ def _sliding_dot_product(Q, T):
 Q = np.random.rand(50)
 T = np.random.rand(100)
 _sliding_dot_product(Q, T)
+
 
 def sliding_dot_product(Q, T):
     return _sliding_dot_product(Q, T)

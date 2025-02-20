@@ -2,7 +2,7 @@ import numpy as np
 from scipy.fft import next_fast_len
 
 
-def sliding_dot_product(Q, T, order='F'):
+def sliding_dot_product(Q, T, order="F"):
     n = len(T)
     m = len(Q)
     shape = next_fast_len(n)
@@ -12,5 +12,5 @@ def sliding_dot_product(Q, T, order='F'):
     tmp[0, m:] = 0.0
     tmp[1, :] = T
     fft_2d = np.fft.rfft(tmp, axis=-1)
-    
-    return np.fft.irfft(np.multiply(fft_2d[0], fft_2d[1]))[m - 1:n]
+
+    return np.fft.irfft(np.multiply(fft_2d[0], fft_2d[1]))[m - 1 : n]

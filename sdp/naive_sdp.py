@@ -6,5 +6,5 @@ def sliding_dot_product(Q, T):
     l = T.shape[0] - m + 1
     out = np.empty(l)
     for i in range(l):
-        out[i] = np.dot(Q, T[i:i+m])
+        out[i] = np.dot(Q, T[i : i + m])
     return out
