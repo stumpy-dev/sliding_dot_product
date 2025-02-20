@@ -33,4 +33,4 @@ if __name__ == "__main__":
                     mod.sliding_dot_product(Q, T)
                 elapsed_time = time.time() - start
 
-                print(f"{mod.__name__},{len(Q)},{len(T)},{n_iter},{elapsed_time / n_iter}")
+                print(f"{mod.__name__},{len(Q)},{len(T)},{n_iter},{elapsed_time / n_iter}", flush=True)
