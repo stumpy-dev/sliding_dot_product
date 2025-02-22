@@ -2,7 +2,7 @@
 
 import numpy as np
 import numpy.testing as npt
-from sdp import pyfftw_sdp, challenger_sdp
+from sdp import naive_sdp, njit_sdp, numpy_fft_sdp, scipy_oaconvolve_sdp, pyfftw_sdp, challenger_sdp
 import time
 import warnings
 
