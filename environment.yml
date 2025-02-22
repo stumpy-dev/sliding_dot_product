@@ -8,11 +8,10 @@ dependencies:
   - numba>=0.59.1
   - fftw
   - pyfftw
+  - panel
   - pandas>=0.20.0
   - flake8>=3.7.7
-  - flake8-docstrings>=1.5.0
   - black>=22.1.0
-  - pytest-cov>=2.10.0
   - jupyterlab>=3.0
   - matplotlib>=3.3.0
   - isort>=5.11.0
