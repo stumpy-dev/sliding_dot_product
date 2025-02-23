@@ -42,5 +42,10 @@ class SLIDING_DOT_PRODUCT:
 _sliding_dot_product = SLIDING_DOT_PRODUCT()
 
 
+def setup(Q, T):
+    _sliding_dot_product(Q, T)
+    return
+
+
 def sliding_dot_product(Q, T):
     return _sliding_dot_product(Q, T)
