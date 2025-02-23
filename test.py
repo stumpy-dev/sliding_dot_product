@@ -42,7 +42,7 @@ if __name__ == "__main__":
                         elapsed_times.append(diff)
 
                 if break_T:
-                    if j == 2 * i:
+                    if j == i + 1:
                         break_Q = True
                     break
 
