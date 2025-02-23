@@ -2,7 +2,7 @@
 
 import numpy as np
 import numpy.testing as npt
-from sdp import naive_sdp, njit_sdp, numpy_fft_sdp, scipy_oaconvolve_sdp, pyfftw_sdp
+from sdp import naive_sdp, njit_sdp, numpy_fft_sdp, scipy_oaconvolve_sdp, pyfftw_sdp, challenger_sdp
 import time
 import warnings
 
@@ -12,6 +12,7 @@ if __name__ == "__main__":
         njit_sdp,
         numpy_fft_sdp,
         scipy_oaconvolve_sdp,
+        challenger_sdp,
     ]
 
     n_iter = 4
@@ -41,7 +42,7 @@ if __name__ == "__main__":
                         elapsed_times.append(diff)
 
                 if break_T:
-                    if j == 2 * i:
+                    if j == i + 1:
                         break_Q = True
                     break
 
