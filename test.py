@@ -50,6 +50,14 @@ def import_sdp_mods(include=None, ignore=None):
     return mods
 
 
+def strip_sdp_prefix_suffix(mod_name):
+    """
+    Take `sdp.numpy_sdp` and convert it to `numpy` (i.e., remove the `sdp.` prefix
+    and `_sdp` suffix
+    """
+    return mod_name[4:-4]
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-niter", default=4, type=int)
@@ -69,7 +77,7 @@ if __name__ == "__main__":
 
     start_timing = time.time()
     for mod in modules:
-        mod_name = mod.__name__[4:-4]
+        mod_name = strip_sdp_prefix_suffic(mod.__name__)
         for i in range(p_min, p_max + 1):
             Q = np.random.rand(2**i)
             break_Q = False
@@ -77,12 +85,13 @@ if __name__ == "__main__":
                 T = np.random.rand(2**j)
                 break_T = False
 
+                try:
+                    mod.setup(Q, T)
+                except:
+                    pass
+
                 elapsed_times = []
                 for _ in range(n_iter):
-                    try:
-                        mod.setup(Q, T)
-                    except:
-                        pass
                     start = time.time()
                     mod.sliding_dot_product(Q, T)
                     diff = time.time() - start
