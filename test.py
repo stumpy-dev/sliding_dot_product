@@ -33,9 +33,17 @@ def import_sdp_mods(include=None, ignore=None):
     mods = []
     for m in sorted(list(pkgutil.iter_modules(sdp.__path__))):
         mod_path = f"sdp/{m[1]}.py"
-        if include is not None and len(include) and not any(mod in mod_path for mod in include):
+        if (
+            include is not None
+            and len(include)
+            and not any(mod in mod_path for mod in include)
+        ):
             continue
-        if ignore is not None and len(ignore) and any(mod in mod_path for mod in ignore):
+        if (
+            ignore is not None
+            and len(ignore)
+            and any(mod in mod_path for mod in ignore)
+        ):
             continue
 
         if (
@@ -55,8 +63,8 @@ if __name__ == "__main__":
     parser.add_argument("-niter", default=4, type=int)
     parser.add_argument("-pmin", default=6, type=int)
     parser.add_argument("-pmax", default=27, type=int)
-    parser.add_argument("-ignore", default=None, nargs='*')
-    parser.add_argument("include", default=None, nargs='*')
+    parser.add_argument("-ignore", default=None, nargs="*")
+    parser.add_argument("include", default=None, nargs="*")
     args = parser.parse_args()
 
     modules = import_sdp_mods(args.include, args.ignore)
