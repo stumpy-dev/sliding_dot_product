@@ -17,9 +17,9 @@ def _sliding_dot_product(Q, T):
     return out
 
 
-Q = np.random.rand(50)
-T = np.random.rand(100)
-_sliding_dot_product(Q, T)
+def setup(Q, T):
+    _sliding_dot_product(np.random.rand(50), np.random.rand(100))
+    return
 
 
 def sliding_dot_product(Q, T):

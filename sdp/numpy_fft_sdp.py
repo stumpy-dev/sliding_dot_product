@@ -2,6 +2,10 @@ import numpy as np
 from scipy.fft import next_fast_len
 
 
+def setup(Q, T):
+    return
+
+
 def sliding_dot_product(Q, T, order="F"):
     n = len(T)
     m = len(Q)
