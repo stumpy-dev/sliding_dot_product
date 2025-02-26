@@ -85,10 +85,7 @@ if __name__ == "__main__":
                 T = np.random.rand(2**j)
                 break_T = False
 
-                try:
-                    mod.setup(Q, T)
-                except:
-                    pass
+                mod.setup(Q, T)
 
                 elapsed_times = []
                 for _ in range(n_iter):
