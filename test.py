@@ -60,13 +60,15 @@ def import_sdp_mods(include=None, ignore=None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-niter", default=4, type=int)
-    parser.add_argument("-pmin", default=6, type=int)
-    parser.add_argument("-pmax", default=27, type=int)
-    parser.add_argument("-pdiff", default=100, type=int)
-    parser.add_argument("-ignore", default=None, nargs="*")
-    parser.add_argument("include", default=None, nargs="*")
+    parser = argparse.ArgumentParser(
+        description="./test.py -pmin 6 -pmax 23 -pdiff 3 pyfftw challenger"
+    )
+    parser.add_argument("-niter", default=4, type=int, help="Number of iterations to run")
+    parser.add_argument("-pmin", default=6, type=int, help="Minimum 2^p to use")
+    parser.add_argument("-pmax", default=27, type=int, help="Maximum 2^p to use")
+    parser.add_argument("-pdiff", default=100, type=int, help="Maximum deviation from the minimum 2^p allowed")
+    parser.add_argument("-ignore", default=None, nargs="*", help="Keyword of modules to match and ignore")
+    parser.add_argument("include", default=None, nargs="*", help="Keyword of modules to match and include")
     args = parser.parse_args()
 
     modules = import_sdp_mods(args.include, args.ignore)
