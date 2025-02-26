@@ -84,7 +84,7 @@ if __name__ == "__main__":
         for i in range(p_min, p_max + 1):
             Q = np.random.rand(2**i)
             break_Q = False
-            for j in range(i, min(i + p_diff, p_max + 1)):
+            for j in range(i, min(i + p_diff + 1, p_max + 1)):
                 T = np.random.rand(2**j)
                 break_T = False
 
