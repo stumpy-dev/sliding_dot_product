@@ -64,6 +64,7 @@ if __name__ == "__main__":
     parser.add_argument("-niter", default=4, type=int)
     parser.add_argument("-pmin", default=6, type=int)
     parser.add_argument("-pmax", default=27, type=int)
+    parser.add_argument("-pdiff", default=100, type=int)
     parser.add_argument("-ignore", default=None, nargs="*")
     parser.add_argument("include", default=None, nargs="*")
     args = parser.parse_args()
@@ -73,6 +74,7 @@ if __name__ == "__main__":
     n_iter = args.niter
     p_min = args.pmin
     p_max = args.pmax
+    p_diff = args.pdiff
 
     print(f"module,len_Q,len_T,n_iter,time", flush=True)
 
@@ -82,7 +84,7 @@ if __name__ == "__main__":
         for i in range(p_min, p_max + 1):
             Q = np.random.rand(2**i)
             break_Q = False
-            for j in range(i, p_max + 1):
+            for j in range(i, min(i + p_diff, p_max + 1)):
                 T = np.random.rand(2**j)
                 break_T = False
 
