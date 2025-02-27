@@ -61,8 +61,9 @@ def import_sdp_mods(include=None, ignore=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="./test.py -pmin 6 -pmax 23 -pdiff 3 pyfftw challenger"
+        description="./test.py -noheader -pmin 6 -pmax 23 -pdiff 3 pyfftw challenger"
     )
+    parser.add_argument("-noheader", default=False, action="store_true")
     parser.add_argument("-niter", default=4, type=int, help="Number of iterations to run")
     parser.add_argument("-pmin", default=6, type=int, help="Minimum 2^p to use")
     parser.add_argument("-pmax", default=27, type=int, help="Maximum 2^p to use")
@@ -73,12 +74,14 @@ if __name__ == "__main__":
 
     modules = import_sdp_mods(args.include, args.ignore)
 
+    noheader = args.noheader
     n_iter = args.niter
     p_min = args.pmin
     p_max = args.pmax
     p_diff = args.pdiff
 
-    print(f"module,len_Q,len_T,n_iter,time", flush=True)
+    if not noheader:
+        print(f"module,len_Q,len_T,n_iter,time", flush=True)
 
     start_timing = time.time()
     for mod in modules:
