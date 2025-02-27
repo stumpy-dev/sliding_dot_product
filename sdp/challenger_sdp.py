@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.signal import convolve
 
 
 def setup(Q, T):
@@ -6,9 +7,5 @@ def setup(Q, T):
 
 
 def sliding_dot_product(Q, T):
-    m = len(Q)
-    l = T.shape[0] - m + 1
-    out = np.empty(l)
-    for i in range(l):
-        out[i] = np.dot(Q, T[i : i + m])
-    return out
+    return convolve(np.ascontiguousarray(Q[::-1]), T, method="fft", mode="valid")
+    
