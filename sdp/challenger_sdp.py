@@ -14,7 +14,7 @@ def sliding_dot_product(Q, T):
     out = np.empty(l)
 
     n_unroll = 4
-    for i in range(0, l - n_unroll, n_unroll):
+    for i in range(0, l - l % n_unroll, n_unroll):
         result_0 = 0.0
         result_1 = 0.0
         result_2 = 0.0
