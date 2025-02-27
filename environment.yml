@@ -8,6 +8,7 @@ dependencies:
   - numba>=0.59.1
   - fftw
   - pyfftw
+  - jax
   - panel
   - pandas>=0.20.0
   - flake8>=3.7.7

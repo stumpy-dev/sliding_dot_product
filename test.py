@@ -48,7 +48,6 @@ def import_sdp_mods(include=None, ignore=None):
 
         if (
             "sdp" in m[1]
-            and "naive" not in m[1]
             and func_exists(mod_path, "sliding_dot_product")
             and func_exists(mod_path, "setup")
         ):
