@@ -9,7 +9,7 @@ fi
 
 for BRANCH in $(ls .git/refs/heads);
   do git checkout $BRANCH ; 
-  git merge origin/main $BRANCH ; 
+  git merge --no-edit origin/main $BRANCH ; 
 done
 
 git checkout main
