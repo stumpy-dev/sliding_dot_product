@@ -15,17 +15,21 @@ def func_exists(mod_path, func_name):
     try:
         with open(mod_path, "r") as file:
             module_content = file.read()
-    except FileNotFoundError:
+    except FileNotFoundError as e:
+        warnings.warn(f"SKIPPED: {mod_path},{func_name}: \n{e}")
         return False  # Module file not found
 
     try:
         tree = ast.parse(module_content)
-    except SyntaxError:
+    except SyntaxError as e:
+        warnings.warn(f"SKIPPED: {mod_path},{func_name}: \n{e}")
         return False  # Syntax error in module
 
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef) and node.name == func_name:
             return True
+    e = f"Function {func_name} not found in {mod_path}"
+    warnings.warn(f"SKIPPED: {mod_path},{func_name}: \n{e}")
     return False
 
 
