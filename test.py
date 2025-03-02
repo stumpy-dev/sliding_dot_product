@@ -10,7 +10,7 @@ import sdp
 import time
 import warnings
 
-from utils import func_exists, import_sdp_mods
+from utils import import_sdp_mods
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
