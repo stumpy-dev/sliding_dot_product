@@ -4,6 +4,8 @@ import pytest
 from numpy import testing as npt
 from sdp import challenger_sdp
 
+from utils import import_sdp_mods
+
 
 def naive_sliding_dot_product(Q, T):
     m = len(Q)
@@ -14,16 +16,19 @@ def naive_sliding_dot_product(Q, T):
     return out
 
 
-def test_challenger():
-    pmin = 2
-    pmax = 10
-    for q in range(pmin, pmax):
-        for p in range(q, pmax):
-            Q = np.random.rand(2 ** q)
-            T = np.random.rand(2 ** p)
-            ref = naive_sliding_dot_product(Q, T)
-            comp = challenger_sdp.sliding_dot_product(Q, T)
+def test_modules():
+    pmin = 3
+    pmax = 13
 
-            np.testing.assert_allclose(comp, ref)
+    modules = import_sdp_mods()
+    for mod in modules:
+        for q in range(pmin, pmax):
+            for p in range(q, pmax):
+                Q = np.random.rand(2 ** q)
+                T = np.random.rand(2 ** p)
+                ref = naive_sliding_dot_product(Q, T)
+                comp = mod.sliding_dot_product(Q, T)
+
+                np.testing.assert_allclose(comp, ref)
 
     return
