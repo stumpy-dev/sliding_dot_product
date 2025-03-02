@@ -22,13 +22,17 @@ def test_modules():
 
     modules = import_sdp_mods()
     for mod in modules:
-        for q in range(pmin, pmax + 1):
-            for p in range(q, pmax + 1):
-                Q = np.random.rand(2 ** q)
-                T = np.random.rand(2 ** p)
-                ref = naive_sliding_dot_product(Q, T)
-                comp = mod.sliding_dot_product(Q, T)
+        try:
+            for q in range(pmin, pmax + 1):
+                for p in range(q, pmax + 1):
+                    Q = np.random.rand(2 ** q)
+                    T = np.random.rand(2 ** p)
+                    ref = naive_sliding_dot_product(Q, T)
+                    comp = mod.sliding_dot_product(Q, T)
 
-                np.testing.assert_allclose(comp, ref)
+                    np.testing.assert_allclose(comp, ref)
+        except Exception as e:
+            print(f"Error in {mod.__name__}: {str(e)}")
+            raise e
 
     return
