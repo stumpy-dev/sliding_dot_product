@@ -22,8 +22,8 @@ def test_modules():
 
     modules = import_sdp_mods()
     for mod in modules:
-        for q in range(pmin, pmax):
-            for p in range(q, pmax):
+        for q in range(pmin, pmax + 1):
+            for p in range(q, pmax + 1):
                 Q = np.random.rand(2 ** q)
                 T = np.random.rand(2 ** p)
                 ref = naive_sliding_dot_product(Q, T)
