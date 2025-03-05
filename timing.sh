@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pytest test_modules.py 
+pytest test.py 
 rm -rf sdp/__pycache__
-./test.py > timing.csv
+./timing.py > timing.csv
 rm -rf sdp/__pycache__
