@@ -6,12 +6,6 @@ import scipy
 
 from scipy.special import lambertw
 from scipy.fft import next_fast_len
-from numba import njit
-from numpy.fft._pocketfft import _raw_fft
-
-import warnings
-
-import numpy_fft_sdp
 
 
 def _pre_compute(n_Q, n_T):
@@ -125,7 +119,7 @@ def sliding_dot_product(Q, T):
     n_T = len(T)
     n_Q = len(Q)
 
-    if n_T == n_Q:  # SKIPPED CHECKING: `regular_approach_1 = n_T == n_Q`
+    if n_T == n_Q:
         return np.dot(Q, T)
 
     QT_INFO = _pre_compute(n_Q, n_T)
@@ -143,11 +137,20 @@ def sliding_dot_product(Q, T):
     ) = QT_INFO
 
     if is_fallback:
-        return numpy_fft_sdp.sliding_dot_product(Q, T)
+        n = len(T)
+        m = len(Q)
+        shape = next_fast_len(n)
+
+        tmp = np.empty((2, shape), order='F')
+        tmp[0, :m] = Q[::-1]
+        tmp[0, m:] = 0.0
+        tmp[1, :] = T
+        fft_2d = np.fft.rfft(tmp, axis=-1)
+
+        return np.fft.irfft(np.multiply(fft_2d[0], fft_2d[1]))[m - 1 : n]
     else:
         return oaconvolve_1D(
             Q[::-1],
-            # np.ascontiguousarray(Q[::-1]), 
             T, 
             overlap,
             opt_size,
@@ -159,16 +162,3 @@ def sliding_dot_product(Q, T):
             T_curnstep,
             Q_curnstep,
         )
-
-
-
-for q in range(2, 13):
-    for p in range(q, 13):
-        n_Q = 2 ** q
-        n_T = 2 ** p
-        Q = np.random.rand(n_Q)
-        T = np.random.rand(n_T)
-        comp = sliding_dot_product(Q, T)
-        ref = numpy_fft_sdp.sliding_dot_product(Q, T)
-
-        np.testing.assert_allclose(comp, ref)
