@@ -63,6 +63,7 @@ if __name__ == "__main__":
         description="./test.py -noheader -pmin 6 -pmax 23 -pdiff 3 pyfftw challenger"
     )
     parser.add_argument("-noheader", default=False, action="store_true")
+    parser.add_argument("-timeout", default=2.0, type=float, help="Number of seconds to wait for a run before timing out")
     parser.add_argument("-pequal", default=False, action="store_true", help="Compute `len(Q) == len(T)`")
     parser.add_argument("-niter", default=4, type=int, help="Number of iterations to run")
     parser.add_argument("-pmin", default=6, type=int, help="Minimum 2^p to use")
@@ -75,6 +76,7 @@ if __name__ == "__main__":
     modules = import_sdp_mods(args.include, args.ignore)
 
     noheader = args.noheader
+    timeout = args.timeout
     if args.pequal:
         skip_p_equal = 0
     else:
@@ -104,7 +106,7 @@ if __name__ == "__main__":
                     start = time.time()
                     mod.sliding_dot_product(Q, T)
                     diff = time.time() - start
-                    if diff > 10.0:
+                    if diff > timeout:
                         break_T = True
                         warnings.warn(f"SKIPPED: {mod_name},{len(Q)},{len(T)},{diff})")
                         break
