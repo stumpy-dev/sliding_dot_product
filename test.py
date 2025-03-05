@@ -1,10 +1,7 @@
 import numpy as np
-import pytest
+import utils
 
 from numpy import testing as npt
-from sdp import challenger_sdp
-
-from utils import import_sdp_mods
 
 
 def naive_sliding_dot_product(Q, T):
@@ -20,17 +17,16 @@ def test_modules():
     pmin = 3
     pmax = 13
 
-    modules = import_sdp_mods()
+    modules = utils.import_sdp_mods()
     for mod in modules:
         try:
             for q in range(pmin, pmax + 1):
                 for p in range(q, pmax + 1):
-                    Q = np.random.rand(2 ** q)
-                    T = np.random.rand(2 ** p)
+                    Q = np.random.rand(2**q)
+                    T = np.random.rand(2**p)
                     ref = naive_sliding_dot_product(Q, T)
                     comp = mod.sliding_dot_product(Q, T)
-
-                    np.testing.assert_allclose(comp, ref)
+                    npt.assert_allclose(comp, ref)
         except Exception as e:
             print(f"Error in {mod.__name__}: {str(e)}")
             raise e
