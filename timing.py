@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 
 import argparse
-import pkgutil
 import ast
 import importlib
 import numpy as np
-import numpy.testing as npt
-import sdp
+import pkgutil
 import time
 import warnings
 
-from utils import import_sdp_mods
+import sdp
+import utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -27,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument("include", default=None, nargs="*", help="Keyword of modules to match and include")
     args = parser.parse_args()
 
-    modules = import_sdp_mods(args.include, args.ignore)
+    modules = utils.import_sdp_mods(args.include, args.ignore)
 
     noheader = args.noheader
     timeout = args.timeout
