@@ -10,7 +10,7 @@ def setup(Q, T):
 def sliding_dot_product(Q, T):
     n = len(T)
     m = len(Q)
-    shape = next_fast_len(n)
+    shape = next_fast_len(n, real=True)
 
     tmp = np.empty((2, shape))
     tmp[0, :m] = Q[::-1]
