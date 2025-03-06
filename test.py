@@ -30,7 +30,8 @@ def test_sdp_power2():
                     npt.assert_allclose(comp, ref)
 
         except Exception as e:
-            print(f"Error in {mod.__name__}: {str(e)}")
+            msg = f"Error in {mod.__name__}, with q={q} and p={p}"
+            print(msg)
             raise e
 
     return
@@ -53,7 +54,8 @@ def test_sdp_power2_plus1():
                     npt.assert_allclose(comp, ref)
 
         except Exception as e:
-            print(f"Error in {mod.__name__}, with q={q} and p={p}")
+            msg = f"Error in {mod.__name__}, with q={q} and p={p}"
+            print(msg)
             raise e
 
     return
@@ -76,7 +78,8 @@ def test_sdp_power2_minus1():
                     npt.assert_allclose(comp, ref)
 
         except Exception as e:
-            print(f"Error in {mod.__name__}: {str(e)}")
+            msg = f"Error in {mod.__name__}, with q={q} and p={p}"
+            print(msg)
             raise e
 
     return
