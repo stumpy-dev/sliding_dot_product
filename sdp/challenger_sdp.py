@@ -15,7 +15,8 @@ def sliding_dot_product(Q, T):
     tmp = np.empty((2, shape))
     tmp[0, :m] = Q[::-1]
     tmp[0, m:] = 0.0
-    tmp[1, :] = T
+    tmp[1, :n] = T
+    tmp[1, n:] = 0.0
     fft_2d = r2c(True, tmp, axis=-1)
     
     return c2r(False, np.multiply(fft_2d[0], fft_2d[1]))[m - 1:n]
