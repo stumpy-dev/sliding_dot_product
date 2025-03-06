@@ -14,6 +14,7 @@ clean_up()
 {
     echo "Cleaning Up"
     rm -rf "__pycache__/"
+    rm -rf "sdp/__pycache__/"
 }
 
 
