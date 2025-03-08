@@ -10,13 +10,13 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12']
+        # python-version: ['3.10', '3.11', '3.12']
     steps:
       - uses: actions/checkout@v4
       - name: Set Up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: $(curl --location https://devguide.python.org/versions | xmllint --html --xpath '//section[@id="supported-versions"]//table/tbody/tr[count(//section[@id="supported-versions"]//table/tbody/tr[td[.="security"]]/preceding-sibling::*)]/td[1]/p/text()' - 2>/dev/null)
       - name: Display Python Version
         run: python -c "import sys; print(sys.version)"
         shell: bash
