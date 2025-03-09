@@ -63,14 +63,38 @@ if __name__ == "__main__":
         description="./test.py -noheader -pmin 6 -pmax 23 -pdiff 3 pyfftw challenger"
     )
     parser.add_argument("-noheader", default=False, action="store_true")
-    parser.add_argument("-timeout", default=5.0, type=float, help="Number of seconds to wait for a run before timing out")
-    parser.add_argument("-pequal", default=False, action="store_true", help="Compute `len(Q) == len(T)`")
-    parser.add_argument("-niter", default=4, type=int, help="Number of iterations to run")
+    parser.add_argument(
+        "-timeout",
+        default=5.0,
+        type=float,
+        help="Number of seconds to wait for a run before timing out",
+    )
+    parser.add_argument(
+        "-pequal", default=False, action="store_true", help="Compute `len(Q) == len(T)`"
+    )
+    parser.add_argument(
+        "-niter", default=4, type=int, help="Number of iterations to run"
+    )
     parser.add_argument("-pmin", default=6, type=int, help="Minimum 2^p to use")
     parser.add_argument("-pmax", default=27, type=int, help="Maximum 2^p to use")
-    parser.add_argument("-pdiff", default=100, type=int, help="Maximum deviation from the minimum 2^p allowed")
-    parser.add_argument("-ignore", default=None, nargs="*", help="Keyword of modules to match and ignore")
-    parser.add_argument("include", default=None, nargs="*", help="Keyword of modules to match and include")
+    parser.add_argument(
+        "-pdiff",
+        default=100,
+        type=int,
+        help="Maximum deviation from the minimum 2^p allowed",
+    )
+    parser.add_argument(
+        "-ignore",
+        default=None,
+        nargs="*",
+        help="Keyword of modules to match and ignore",
+    )
+    parser.add_argument(
+        "include",
+        default=None,
+        nargs="*",
+        help="Keyword of modules to match and include",
+    )
     args = parser.parse_args()
 
     modules = import_sdp_mods(args.include, args.ignore)
