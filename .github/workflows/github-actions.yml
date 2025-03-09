@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set env
-        run: echo "PYTHON_VERSION=$(python_version.sh)" >> $GITHUB_ENV
+        run: echo "PYTHON_VERSION=$(./python_version.sh)" >> $GITHUB_ENV
       
       - name: Set Up Python
         uses: actions/setup-python@v5
@@ -35,5 +35,5 @@ jobs:
         run: python -m numba -s
         shell: bash
       - name: Run Unit Tests
-        run: source test.sh
+        run: ./test.sh
         shell: bash
