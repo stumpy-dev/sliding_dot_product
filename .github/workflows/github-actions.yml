@@ -16,7 +16,7 @@ jobs:
       - name: Set Up Python
         uses: actions/setup-python@v5
         with:
-          python-version: $(curl --location https://devguide.python.org/versions | xmllint --html --xpath '//section[@id="supported-versions"]//table/tbody/tr[count(//section[@id="supported-versions"]//table/tbody/tr[td[.="security"]]/preceding-sibling::*)]/td[1]/p/text()' - 2>/dev/null)
+          python-version: '3.10'
       - name: Display Python Version
         run: python -c "import sys; print(sys.version)"
         shell: bash
