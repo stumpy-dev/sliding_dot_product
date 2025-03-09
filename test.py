@@ -1,6 +1,5 @@
 import numpy as np
 import utils
-import warnings
 
 from numpy import testing as npt
 from scipy.fft import next_fast_len
@@ -44,13 +43,17 @@ def test_sdp_case0():
 
 def test_sdp_case1():
     # This tests cases where the length of `T` is even
-    # and its next_fast_len is the same as the len(T). 
+    # and its next_fast_len is the same as the len(T).
     # To this end, we choose 2, 3 and 5
 
     n_T = 2 * (3**2) * (5**3)
     shape = next_fast_len(n_T)
     if shape != n_T:
-        warnings.warn(f"next_fast_len({n_T}) = {shape}")
+        msg = (
+            "In this test, n_T value should be set to an even value "
+            + "such that its next_fast_len must be the same"
+        )
+        raise ValueError(msg)
 
     modules = utils.import_sdp_mods()
     for mod in modules:
@@ -73,13 +76,17 @@ def test_sdp_case1():
 
 def test_sdp_case2():
     # This tests cases where the length of `T` is odd
-    # and its next_fast_len is the same as the len(T). 
+    # and its next_fast_len is the same as the len(T).
     # To this end, we choose 3 and 5
 
-    n_T = (3**2) * (5**3) 
+    n_T = (3**2) * (5**3)
     shape = next_fast_len(n_T)
     if shape != n_T:
-        warnings.warn(f"next_fast_len({n_T}) != {shape}")
+        msg = (
+            "In this test, n_T value should be set to an odd value "
+            + "such that its next_fast_len must be the same"
+        )
+        raise ValueError(msg)
 
     modules = utils.import_sdp_mods()
     for mod in modules:
@@ -108,8 +115,12 @@ def test_sdp_case3():
 
     n_T = 2 * 7 * 11 * 13
     shape = next_fast_len(n_T)
-    if shape == n_T:
-        warnings.warn(f"next_fast_len({n_T}) == {shape}")
+    if shape <= n_T:
+        msg = (
+            "In this test, n_T value should be set to an even value "
+            + "such that its next_fast_len must be larger"
+        )
+        raise ValueError(msg)
 
     modules = utils.import_sdp_mods()
     for mod in modules:
@@ -138,8 +149,12 @@ def test_sdp_case4():
 
     n_T = 7 * 11 * 13
     shape = next_fast_len(n_T)
-    if shape == n_T:
-        warnings.warn(f"next_fast_len({n_T}) == {shape}")
+    if shape <= n_T:
+        msg = (
+            "In this test, n_T value should be set to an odd value "
+            + "such that its next_fast_len must be larger"
+        )
+        raise ValueError(msg)
 
     modules = utils.import_sdp_mods()
     for mod in modules:
