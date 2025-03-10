@@ -23,6 +23,7 @@ jobs:
       
       - name: Set environment variables
         run:  echo "PYTHON_VERSION=$(./python_version.sh)" >> $GITHUB_ENV
+        shell : bash
 
       - name: Display Python Version
         run: echo ${{ env.PYTHON_VERSION }}
