@@ -1,0 +1,15 @@
+[flake8]
+ignore = 
+    E741,
+    W503,
+    E203,
+    D100,
+    D401,
+    D200,
+    D205,
+    D400,
+    D301
+max-line-length = 88
+docstring-convention=numpy
+per-file-ignores =
+    ./test.py:D101,D102,D103
