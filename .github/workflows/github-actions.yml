@@ -13,6 +13,11 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     
     steps:
+      - name: Install xmllint on Linux
+        if: runner.os == 'Linux'
+        run: sudo apt-get install libxml2-utils
+        shell: bash
+      
       - name: Checkout Repository
         uses: actions/checkout@v4
       
