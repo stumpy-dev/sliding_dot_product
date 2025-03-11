@@ -43,9 +43,32 @@ test_unit()
     echo "Elapsed Time: $((duration / 60)) minutes and $((duration % 60)) seconds" 
 }
 
+test_coverage()
+{
+    echo "Disabling Numba JIT and CUDA Compiled Functions"
+    export NUMBA_DISABLE_JIT=1
+    export NUMBA_ENABLE_CUDASIM=1
+
+    echo "Testing Code Coverage"
+    coverage erase
+
+    SECONDS=0
+    coverage run --append --source=. -m pytest -rsx -W ignore::RuntimeWarning -W ignore::DeprecationWarning -W ignore::UserWarning test.py
+    check_errs $?            
+    duration=$SECONDS
+  
+    echo "Elapsed Time: $((duration / 60)) minutes and $((duration % 60)) seconds"
+    coverage report -m --fail-under=100 --skip-covered --omit=timing.py,utils.py
+}
+
 
 clean_up
 check_black
 check_flake
 test_unit
+
 clean_up
+test_coverage
+
+clean_up
+echo $NUMBA_DISABLE_JIT
