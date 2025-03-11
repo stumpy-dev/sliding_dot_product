@@ -16,10 +16,10 @@ from scipy.fft import next_fast_len
 
 # To ensure that the tests cover different cases, the following cases
 # are considered:
-# 1. len(T) is even, and len(T) == next_fast_len(len(T))
-# 2. len(T) is odd, and len(T) == next_fast_len(len(T))
-# 3. len(T) is even, and len(T) < next_fast_len(len(T))
-# 4. len(T) is odd, and len(T) < next_fast_len(len(T))
+# 1. len(T) is even, and len(T) == next_fast_len(len(T), real=True)
+# 2. len(T) is odd, and len(T) == next_fast_len(len(T), real=True)
+# 3. len(T) is even, and len(T) < next_fast_len(len(T), real=True)
+# 4. len(T) is odd, and len(T) < next_fast_len(len(T), real=True)
 # And 5. a special case of 1, where len(T) is power of 2.
 
 # Therefore:
@@ -39,18 +39,18 @@ test_inputs = [
         2 * (3**2) * (5**3),
         0,
         eq,
-    ),  # = 2250, Even `len(T)`, and `len(T) == next_fast_len(len(T))`
+    ),  # = 2250, Even `len(T)`, and `len(T) == next_fast_len(len(T), real=True)`
     (
         (3**2) * (5**3),
         1,
         eq,
-    ),  # = 1125, Odd `len(T)`, and `len(T) == next_fast_len(len(T))`.
+    ),  # = 1125, Odd `len(T)`, and `len(T) == next_fast_len(len(T), real=True)`.
     (
         2 * 7 * 11 * 13,
         0,
         lt,
-    ),  # = 2002, Even `len(T)`, and `len(T) < next_fast_len(len(T))`
-    (7 * 11 * 13, 1, lt),  # = 1001, Odd `len(T)`, and `len(T) < next_fast_len(len(T))`
+    ),  # = 2002, Even `len(T)`, and `len(T) < next_fast_len(len(T), real=True)`
+    (7 * 11 * 13, 1, lt),  # = 1001, Odd `len(T)`, and `len(T) < next_fast_len(len(T), real=True)`
 ]
 
 
@@ -70,7 +70,7 @@ def test_remainder(n_T, remainder, comparator):
 
 @pytest.mark.parametrize("n_T, remainder, comparator", test_inputs)
 def test_comparator(n_T, remainder, comparator):
-    shape = next_fast_len(n_T)
+    shape = next_fast_len(n_T, real=True)
     assert comparator(n_T, shape)
 
 
