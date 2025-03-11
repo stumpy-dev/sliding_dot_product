@@ -64,18 +64,18 @@ def naive_sliding_dot_product(Q, T):
 
 
 @pytest.mark.parametrize("n_T, remainder, comparator", test_inputs)
-def test_remainder(n_T, remainder):
+def test_remainder(n_T, remainder, comparator):
     assert n_T % 2 == remainder
 
 
 @pytest.mark.parametrize("n_T, remainder, comparator", test_inputs)
-def test_comparator(n_T, comparator):
+def test_comparator(n_T, remainder, comparator):
     shape = next_fast_len(n_T)
     assert comparator(n_T, shape)
 
 
 @pytest.mark.parametrize("n_T, remainder, comparator", test_inputs)
-def test_sdp():
+def test_sdp(n_T, remainder, comparator):
     # test_sdp for cases 1-4
     modules = utils.import_sdp_mods()
     for mod in modules:
