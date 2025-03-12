@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Set environment variables
-        run:  echo "PYTHON_VERSION=$(./python_version.sh)" >> $GITHUB_ENV
+        run:  echo "PYTHON_VERSION=$(curl --location https://devguide.python.org/versions | xmllint --html --xpath '//section[@id="supported-versions"]//table/tbody/tr[count(//section[@id="supported-versions"]//table/tbody/tr[td[.="security"]]/preceding-sibling::*)]/td[1]/p/text()' - 2> /dev/null)" >> $GITHUB_ENV
         shell : bash
 
       - name: Display Python Version
