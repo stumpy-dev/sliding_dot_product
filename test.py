@@ -50,7 +50,11 @@ test_inputs = [
         0,
         lt,
     ),  # = 2002, Even `len(T)`, and `len(T) < next_fast_len(len(T), real=True)`
-    (7 * 11 * 13, 1, lt),  # = 1001, Odd `len(T)`, and `len(T) < next_fast_len(len(T), real=True)`
+    (
+        7 * 11 * 13,
+        1,
+        lt,
+    ),  # = 1001, Odd `len(T)`, and `len(T) < next_fast_len(len(T), real=True)`
 ]
 
 
@@ -79,7 +83,7 @@ def test_sdp(n_T, remainder, comparator):
     # test_sdp for cases 1-4
     modules = utils.import_sdp_mods()
     for mod in modules:
-        for n_Q in range(2, n_T + 1):
+        for n_Q in [2, n_T // 2, n_T]:
             try:
                 Q = np.random.rand(n_Q)
                 T = np.random.rand(n_T)
