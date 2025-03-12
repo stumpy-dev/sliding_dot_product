@@ -29,9 +29,9 @@ from scipy.fft import next_fast_len
 # 4. len(T) is composed of a subset of {7, 11, 13, ...}
 # 5. len(T) is power of 2
 
-# In some cases, the prime factors are raised to a power of 
-# certain degree to increase the length of array to be around 
-# 1000-2000. This allows us to test sliding_dot_product for 
+# In some cases, the prime factors are raised to a power of
+# certain degree to increase the length of array to be around
+# 1000-2000. This allows us to test sliding_dot_product for
 # wider range of query lengths.
 
 test_inputs = [
