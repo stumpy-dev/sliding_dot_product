@@ -81,17 +81,47 @@ def test_comparator(n_T, remainder, comparator):
 @pytest.mark.parametrize("n_T, remainder, comparator", test_inputs)
 def test_sdp(n_T, remainder, comparator):
     # test_sdp for cases 1-4
-    modules = utils.import_sdp_mods()
-    for mod in modules:
-        for n_Q in [2, n_T // 2, n_T]:
-            try:
-                Q = np.random.rand(n_Q)
-                T = np.random.rand(n_T)
 
-                ref = naive_sliding_dot_product(Q, T)
+    n_Q_prime = [
+        2,
+        3,
+        5,
+        7,
+        11,
+        13,
+        17,
+        19,
+        23,
+        29,
+        31,
+        37,
+        41,
+        43,
+        47,
+        53,
+        59,
+        61,
+        67,
+        71,
+        73,
+        79,
+        83,
+        89,
+        97,
+    ]
+    n_Q_power2 = [2, 4, 8, 16, 32, 64]
+    n_Q_values = n_Q_prime + n_Q_power2 + [n_T]
+    n_Q_values = sorted(n_Q for n_Q in set(n_Q_values) if n_Q <= n_T)
+
+    modules = utils.import_sdp_mods()
+    for n_Q in n_Q_values:
+        Q = np.random.rand(n_Q)
+        T = np.random.rand(n_T)
+        ref = naive_sliding_dot_product(Q, T)
+        for mod in modules:
+            try:
                 comp = mod.sliding_dot_product(Q, T)
                 npt.assert_allclose(comp, ref)
-
             except Exception as e:  # pragma: no cover
                 msg = f"Error in {mod.__name__}, with n_Q={n_Q} and n_T={n_T}"
                 print(msg)
