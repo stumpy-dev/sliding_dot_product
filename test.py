@@ -92,7 +92,7 @@ def test_sdp(n_T, remainder, comparator):
                 comp = mod.sliding_dot_product(Q, T)
                 npt.assert_allclose(comp, ref)
 
-            except Exception as e:
+            except Exception as e:  # pragma: no cover
                 msg = f"Error in {mod.__name__}, with n_Q={n_Q} and n_T={n_T}"
                 print(msg)
                 raise e
@@ -119,7 +119,7 @@ def test_sdp_power2():
                     comp = mod.sliding_dot_product(Q, T)
                     npt.assert_allclose(comp, ref)
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             msg = f"Error in {mod.__name__}, with q={q} and p={p}"
             print(msg)
             raise e

@@ -2,7 +2,7 @@ import numpy as np
 from scipy.fft import next_fast_len
 
 
-def setup(Q, T):
+def setup(Q, T):  # pragma: no cover
     return
 
 
