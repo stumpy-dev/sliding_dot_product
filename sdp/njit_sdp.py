@@ -16,7 +16,7 @@ def _sliding_dot_product(Q, T):
     return out
 
 
-def setup(Q, T):  # pragma: no cover
+def setup(Q, T):
     _sliding_dot_product(np.random.rand(50), np.random.rand(100))
     return
 

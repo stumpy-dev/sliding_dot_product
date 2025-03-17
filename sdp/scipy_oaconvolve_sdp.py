@@ -2,7 +2,7 @@ from scipy.signal import oaconvolve
 import numpy as np
 
 
-def setup(Q, T):  # pragma: no cover
+def setup(Q, T):
     return
 
 
