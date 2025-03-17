@@ -71,4 +71,3 @@ clean_up
 test_coverage
 
 clean_up
-echo $NUMBA_DISABLE_JIT
