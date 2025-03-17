@@ -9,6 +9,9 @@ jobs:
   unit-testing:
     defaults:
       run:
+        # Set default shell to login-bash
+        # This is required to properly activate the conda environment
+        # https://github.com/conda-incubator/setup-miniconda?tab=readme-ov-file#use-a-default-shell
         shell: bash -el {0}
 
     runs-on: ${{ matrix.os }}
@@ -40,11 +43,6 @@ jobs:
         
       - name : Remove environment_new.yml
         run: rm -rf environment_new.yml
-       
-      - name: install pytest and coverage
-        run: |
-          conda install conda-forge::pytest
-          conda install conda-forge::coverage
        
       - name : Display Conda Environments
         run: conda env list
