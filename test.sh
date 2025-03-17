@@ -47,7 +47,6 @@ test_coverage()
 {
     echo "Disabling Numba JIT and CUDA Compiled Functions"
     export NUMBA_DISABLE_JIT=1
-    export NUMBA_ENABLE_CUDASIM=1
 
     echo "Testing Code Coverage"
     coverage erase
