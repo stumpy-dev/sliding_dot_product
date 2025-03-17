@@ -155,3 +155,23 @@ def test_sdp_power2():
             raise e
 
     return
+
+
+def test_setup():
+    Q = np.random.rand(3)
+    T = np.random.rand(10)
+
+    modules = utils.import_sdp_mods()
+    for mod in modules:
+        # test if setup function exists and runs without error
+        try:
+            out = mod.setup(Q, T)
+        except Exception as e:  # pragma: no cover
+            msg = f"Error in {mod.__name__}"
+            print(msg)
+            raise e
+
+        # test if setup function returns None
+        assert out is None
+
+    return
