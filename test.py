@@ -1,5 +1,8 @@
+import importlib
 import numpy as np
+import pkgutil
 import pytest
+import sdp
 import utils
 
 from numpy import testing as npt
@@ -161,17 +164,25 @@ def test_setup():
     Q = np.random.rand(3)
     T = np.random.rand(10)
 
-    modules = utils.import_sdp_mods()
-    for mod in modules:
-        # test if setup function exists and runs without error
-        try:
-            out = mod.setup(Q, T)
-        except Exception as e:  # pragma: no cover
-            msg = f"Error in {mod.__name__}"
-            print(msg)
-            raise e
+    for m in sorted(list(pkgutil.iter_modules(sdp.__path__))):
+        if m[1].endswith("_sdp"):
+            # test if the module has the setup function
+            mod_path = f"sdp/{m[1]}.py"
+            try:
+                assert utils.func_exists(mod_path, "setup")
+            except AssertionError as e:  # pragma: no cover
+                msg = f"Error in {mod_path}"
+                print(msg)
+                raise e
 
-        # test if setup function returns None
-        assert out is None
+            # test if setup function returns None
+            mod_name = f"sdp.{m[1]}"
+            mod = importlib.import_module(mod_name)
+            try:
+                assert mod.setup(Q, T) is None
+            except AssertionError as e:  # pragma: no cover
+                msg = f"Error in {mod_name}"
+                print(msg)
+                raise e
 
     return
