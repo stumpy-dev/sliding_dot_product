@@ -9,7 +9,7 @@ import utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="./test.py -noheader -pmin 6 -pmax 23 -pdiff 3 pyfftw challenger"
+        description="./timing.py -noheader -pmin 6 -pmax 23 -pdiff 3 pyfftw challenger"
     )
     parser.add_argument("-noheader", default=False, action="store_true")
     parser.add_argument(
