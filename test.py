@@ -171,7 +171,7 @@ def test_setup():
     T = np.random.rand(10)
 
     for m in sorted(list(pkgutil.iter_modules(sdp.__path__))):
-        if m[1].endswith("_sdp"):
+        if "sdp" in m[1]:
             # test if the module has the setup function
             mod_path = f"sdp/{m[1]}.py"
             try:
