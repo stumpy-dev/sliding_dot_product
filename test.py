@@ -38,6 +38,12 @@ from scipy.fft import next_fast_len
 # wider range of query lengths.
 
 test_inputs = [
+    # Input format:
+    # (
+    #     len(T),
+    #     remainder,  #  from `len(T) % 2`  
+    #     comparator,  # for len(T) comparator next_fast_len(len(T), real=True)
+    # )
     (
         2 * (3**2) * (5**3),
         0,
