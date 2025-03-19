@@ -47,9 +47,6 @@ jobs:
       - name : Display Conda Environments
         run: conda env list
        
-      - name: Display Conda Info
-        run: conda info
-       
       - name: Display All Installed Packages
         run: conda list
        
