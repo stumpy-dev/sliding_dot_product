@@ -41,7 +41,7 @@ test_inputs = [
     # Input format:
     # (
     #     len(T),
-    #     remainder,  #  from `len(T) % 2`  
+    #     remainder,  #  from `len(T) % 2`
     #     comparator,  # for len(T) comparator next_fast_len(len(T), real=True)
     # )
     (
