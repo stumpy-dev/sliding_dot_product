@@ -24,19 +24,19 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get install libxml2-utils
             
-      - name: Get safe PYTHON_VERSION
+      - name: Get Safe PYTHON_VERSION
         run:  echo "PYTHON_VERSION=$(curl --location https://devguide.python.org/versions | xmllint --html --xpath '//section[@id="supported-versions"]//table/tbody/tr[count(//section[@id="supported-versions"]//table/tbody/tr[td[.="security"]]/preceding-sibling::*)]/td[1]/p/text()' - 2> /dev/null)" >> $GITHUB_ENV
   
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Update environment.yml with PYTHON_VERSION
-        run: sed 's/python.*/python==${{ env.PYTHON_VERSION }}/' environment.yml > environment_new.yml
+        run: sed -r 's/- python[>=]+[0-9]+\.[0-9]+/- python==${{ env.PYTHON_VERSION }}/' environment.yml > environment_new.yml
        
       - name: Display environment_new.yml
         run: cat environment_new.yml
        
-      - name: set up conda and install dependencies
+      - name: Set up Miniconda and Install New Dependencies
         uses: conda-incubator/setup-miniconda@v3
         with:
           environment-file: environment_new.yml
@@ -47,10 +47,10 @@ jobs:
       - name : Display Conda Environments
         run: conda env list
        
-      - name: Display conda info
+      - name: Display Conda Info
         run: conda info
        
-      - name: Display conda list
+      - name: Display All Installed Packages
         run: conda list
        
       - name: Display Python Version
