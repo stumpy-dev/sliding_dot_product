@@ -56,5 +56,5 @@ jobs:
       - name: Show Full Numba Environment
         run: python -m numba -s
        
-      - name: Run Unit Tests
+      - name: Run Unit Tests and Coverage
         run: ./test.sh
