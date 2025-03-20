@@ -1,0 +1,60 @@
+name: Tests
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+jobs:
+  unit-testing:
+    defaults:
+      run:
+        # Set default shell to login-bash
+        # This is required to properly activate the conda environment
+        # https://github.com/conda-incubator/setup-miniconda?tab=readme-ov-file#use-a-default-shell
+        shell: bash -el {0}
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    
+    steps:
+      - name: Install xmllint on Linux
+        if: runner.os == 'Linux'
+        run: sudo apt-get install libxml2-utils
+            
+      - name: Get Safe PYTHON_VERSION
+        run:  echo "PYTHON_VERSION=$(curl --location https://devguide.python.org/versions | xmllint --html --xpath '//section[@id="supported-versions"]//table/tbody/tr[count(//section[@id="supported-versions"]//table/tbody/tr[td[.="security"]]/preceding-sibling::*)]/td[1]/p/text()' - 2> /dev/null)" >> $GITHUB_ENV
+  
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Update environment.yml with PYTHON_VERSION
+        run: sed -r 's/- python[>=]+[0-9]+\.[0-9]+/- python==${{ env.PYTHON_VERSION }}/' environment.yml > environment_new.yml
+       
+      - name: Display environment_new.yml
+        run: cat environment_new.yml
+       
+      - name: Set up Miniconda and Install New Dependencies
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: environment_new.yml
+        
+      - name : Remove environment_new.yml
+        run: rm -rf environment_new.yml
+       
+      - name : Display Conda Environments
+        run: conda env list
+       
+      - name: Display All Installed Packages
+        run: conda list
+       
+      - name: Display Python Version
+        run: python -c "import sys; print(sys.version)"
+            
+      - name: Show Full Numba Environment
+        run: python -m numba -s
+       
+      - name: Run Unit Tests and Coverage
+        run: ./test.sh
