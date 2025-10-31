@@ -192,3 +192,37 @@ def test_setup():
                 raise e
 
     return
+
+
+def test_challenger2_power2():
+    # test for case 5. len(T) is power of 2
+    pmin = 3
+    pmax = 13
+
+    from sdp import challenger2_sdp
+
+    challenger2_sdp._sliding_dot_product.create_reusable_objects(
+        pmin=pmin, pmax=pmax - 1
+    )
+    # leaving out pmax to force the algo to create rfft/irfft if not created before
+
+    for q in range(pmin, pmax + 1):
+        n_Q = 2**q
+        for p in range(q, pmax + 1):
+            n_T = 2**p
+            Q = np.random.rand(n_Q)
+            T = np.random.rand(n_T)
+
+            ref = naive_sliding_dot_product(Q, T)
+            comp = challenger2_sdp.sliding_dot_product(Q, T)
+            npt.assert_allclose(comp, ref)
+
+    n_T = 2**16
+    T = np.random.rand(n_T)
+    Q = np.random.rand(n_T - 1)
+
+    ref = naive_sliding_dot_product(Q, T)
+    comp = challenger2_sdp.sliding_dot_product(Q, T)
+    npt.assert_allclose(comp, ref)
+
+    return
