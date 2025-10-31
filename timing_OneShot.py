@@ -64,37 +64,32 @@ if __name__ == "__main__":
 
     start_timing = time.time()
     for mod in modules:
-        mod_name = mod.__name__.removeprefix("sdp.").removesuffix("_sdp")        
+        mod_name = mod.__name__.removeprefix("sdp.").removesuffix("_sdp")
         mod.setup(np.random.rand(2), np.random.rand(2))
-        
+
         for i in range(p_min, p_max + 1):
             Q = np.random.rand(2**i)
-            
+
             j_range = range(i + skip_p_equal, min(i + p_diff + 1, p_max + 1))
             timing = np.zeros(len(j_range), dtype=np.float64)
             for _ in range(n_iter):
                 lst = []
                 for j in j_range:
                     T = np.random.rand(2**j)
-                
+
                     start = time.time()
                     mod.sliding_dot_product(Q, T)
                     diff = time.time() - start
                     lst.append(diff)
-                
-                timing += np.array(lst) 
-            
-            timing /= n_iter 
 
+                timing += np.array(lst)
+
+            timing /= n_iter
 
             for j_index, j in enumerate(j_range):
                 T = np.random.rand(2**j)
-                info = (
-                    f"{mod_name},{len(Q)},{len(T)},{n_iter}"
-                    + f",{timing[j_index]}"
-                )
+                info = f"{mod_name},{len(Q)},{len(T)},{n_iter}" + f",{timing[j_index]}"
                 print(info, flush=True)
 
-            
     elapsed_timing = np.round((time.time() - start_timing) / 60.0, 2)
     warnings.warn(f"Test completed in {elapsed_timing} min")
