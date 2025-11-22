@@ -16,7 +16,7 @@ if __name__ == "__main__":
         "-timeout",
         default=1.0,
         type=float,
-        help="Maximum total time (in seconds) allowed for iterations per (len(Q), len(T))",
+        help="Maximum total time (in seconds) allowed for iterations to run",
     )
     parser.add_argument(
         "-pequal", default=False, action="store_true", help="Compute `len(Q) == len(T)`"
