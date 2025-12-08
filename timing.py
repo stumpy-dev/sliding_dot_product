@@ -54,7 +54,7 @@ if __name__ == "__main__":
         skip_p_equal = 0
     else:
         skip_p_equal = 1
-    iter_max = args.itermax
+    max_iter = args.itermax
     p_min = args.pmin
     p_max = args.pmax
     p_diff = args.pdiff
@@ -75,9 +75,9 @@ if __name__ == "__main__":
                 mod.setup(Q, T)
 
                 elapsed_times = []
-                iter_count = 0
-                while sum(elapsed_times) < timeout and iter_count < iter_max:
-                    iter_count += 1
+                n_iter = 0
+                while sum(elapsed_times) < timeout and n_iter < max_iter:
+                    n_iter += 1
 
                     start = time.time()
                     mod.sliding_dot_product(Q, T)
