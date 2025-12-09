@@ -22,7 +22,7 @@ if __name__ == "__main__":
         "-pequal", default=False, action="store_true", help="Compute `len(Q) == len(T)`"
     )
     parser.add_argument(
-        "-itermax", default=1000, type=int, help="Maximum number of iterations to run"
+        "-maxiter", default=1000, type=int, help="Maximum number of iterations to run"
     )
     parser.add_argument("-pmin", default=6, type=int, help="Minimum 2^p to use")
     parser.add_argument("-pmax", default=27, type=int, help="Maximum 2^p to use")
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         skip_p_equal = 0
     else:
         skip_p_equal = 1
-    max_iter = args.itermax
+    max_iter = args.maxiter
     p_min = args.pmin
     p_max = args.pmax
     p_diff = args.pdiff
