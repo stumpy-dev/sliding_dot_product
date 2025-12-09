@@ -14,15 +14,15 @@ if __name__ == "__main__":
     parser.add_argument("-noheader", default=False, action="store_true")
     parser.add_argument(
         "-timeout",
-        default=5.0,
+        default=1.0,
         type=float,
-        help="Number of seconds to wait for a run before timing out",
+        help="Maximum total time (in seconds) allowed for iterations to run",
     )
     parser.add_argument(
         "-pequal", default=False, action="store_true", help="Compute `len(Q) == len(T)`"
     )
     parser.add_argument(
-        "-niter", default=4, type=int, help="Number of iterations to run"
+        "-maxiter", default=1000, type=int, help="Maximum number of iterations to run"
     )
     parser.add_argument("-pmin", default=6, type=int, help="Minimum 2^p to use")
     parser.add_argument("-pmax", default=27, type=int, help="Maximum 2^p to use")
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         skip_p_equal = 0
     else:
         skip_p_equal = 1
-    n_iter = args.niter
+    max_iter = args.maxiter
     p_min = args.pmin
     p_max = args.pmax
     p_diff = args.pdiff
@@ -75,7 +75,10 @@ if __name__ == "__main__":
                 mod.setup(Q, T)
 
                 elapsed_times = []
-                for _ in range(n_iter):
+                n_iter = 0
+                while sum(elapsed_times) < timeout and n_iter < max_iter:
+                    n_iter += 1
+
                     start = time.time()
                     mod.sliding_dot_product(Q, T)
                     diff = time.time() - start
