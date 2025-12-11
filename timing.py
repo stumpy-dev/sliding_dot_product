@@ -59,7 +59,7 @@ if __name__ == "__main__":
     p_max = args.pmax
     p_diff = args.pdiff
 
-    if not noheader:
+    if noheader:
         print("module,len_Q,len_T,n_iter,time", flush=True)
 
     start_timing = time.time()
