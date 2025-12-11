@@ -9,7 +9,7 @@ import utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="./timing.py -noheader -pmin 6 -pmax 23 -pdiff 3 pyfftw challenger"
+        description="./timing.py -pmin 6 -pmax 23 -pdiff 3 pyfftw challenger"
     )
     parser.add_argument("-noheader", default=False, action="store_true")
     parser.add_argument(
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     p_max = args.pmax
     p_diff = args.pdiff
 
-    if noheader:
+    if not noheader:
         print("module,len_Q,len_T,n_iter,time", flush=True)
 
     start_timing = time.time()
