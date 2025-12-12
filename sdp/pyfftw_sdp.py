@@ -58,8 +58,8 @@ class SLIDING_DOT_PRODUCT:
 
         # RFFT(T) * RFFT(Q)
         np.multiply(self.complex_arr, complex_arr_T, out=self.complex_arr)
-        
-        # IRFFT 
+
+        # IRFFT
         # input is in self.complex_arr
         # output is in self.real_arr
         self.irfft_obj.execute()
