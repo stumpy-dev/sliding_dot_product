@@ -1,6 +1,5 @@
 import pyfftw
 import numpy as np
-from . import config
 
 
 class SLIDING_DOT_PRODUCT:
