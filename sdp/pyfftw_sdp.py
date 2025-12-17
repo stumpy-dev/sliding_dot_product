@@ -1,79 +1,90 @@
 import pyfftw
 import numpy as np
+from . import config
 
 
 class SLIDING_DOT_PRODUCT:
     # https://stackoverflow.com/a/30615425/2955541
-    def __init__(self):
-        self.m = 0
+    def __init__(self, max_shape=2**10):
+        """
+        Parameters
+        ----------
+        max_shape : int
+            Maximum shape to preallocate arrays for. This will be the size of the
+            the real-valued array. A complex-valued array of size 1 + max_shape // 2
+            will also be preallocated.
+        """
         self.n = 0
         self.shape = 0
-        self.threads = 1
+        self.real_arr = pyfftw.empty_aligned(max_shape, dtype="float64")
+        self.complex_arr = pyfftw.empty_aligned(1 + max_shape // 2, dtype="complex128")
+        self.rfft_irfft_objects = {}
 
-    def __call__(self, Q, T):
-        self.m = Q.shape[0]
-
-        need_new_obj = False
+    def __call__(self, Q, T, threads=1, planning_flag="FFTW_MEASURE"):
+        m = Q.shape[0]
         if self.n != T.shape[0]:
-            # need to re-compute shape
             self.n = T.shape[0]
-            shape = pyfftw.next_fast_len(self.n)
-            if self.shape != shape:
-                self.shape = shape
-                need_new_obj = True
+            self.shape = pyfftw.next_fast_len(self.n)
 
-        if need_new_obj:
-            # create input and output arrays and FFTW objects
+        if self.shape > len(self.real_arr):
             self.real_arr = pyfftw.empty_aligned(self.shape, dtype="float64")
             self.complex_arr = pyfftw.empty_aligned(
                 1 + self.shape // 2, dtype="complex128"
             )
+        real_arr = self.real_arr[: self.shape]
+        complex_arr = self.complex_arr[: 1 + self.shape // 2]
 
-            self.rfft_obj = pyfftw.FFTW(
-                input_array=self.real_arr,
-                output_array=self.complex_arr,
-                flags=("FFTW_MEASURE",),
+        rfft_irfft_obj = self.rfft_irfft_objects.get(self.shape, None)
+        if rfft_irfft_obj is None:
+            rfft_obj = pyfftw.FFTW(
+                input_array=real_arr,
+                output_array=complex_arr,
                 direction="FFTW_FORWARD",
-                threads=self.threads,
+                flags=(planning_flag,),
+                threads=threads,
             )
-
-            self.irfft_obj = pyfftw.FFTW(
-                input_array=self.complex_arr,
-                output_array=self.real_arr,
-                flags=("FFTW_MEASURE", "FFTW_DESTROY_INPUT"),
+            irfft_obj = pyfftw.FFTW(
+                input_array=complex_arr,
+                output_array=real_arr,
                 direction="FFTW_BACKWARD",
-                threads=self.threads,
+                flags=(planning_flag, "FFTW_DESTROY_INPUT"),
+                threads=threads,
             )
+            self.rfft_irfft_objects[self.shape] = (rfft_obj, irfft_obj)
+        else:
+            rfft_obj, irfft_obj = rfft_irfft_obj
+            rfft_obj.update_arrays(real_arr, complex_arr)
+            irfft_obj.update_arrays(complex_arr, real_arr)
 
         # RFFT(T)
-        self.real_arr[: self.n] = T
-        self.real_arr[self.n : self.shape] = 0.0
-        self.rfft_obj.execute()  # output is in self.complex_arr
-        complex_arr_T = self.complex_arr.copy()
+        real_arr[: self.n] = T
+        real_arr[self.n :] = 0.0
+        rfft_obj.execute()  # output is in self.complex_arr
+        complex_arr_T = complex_arr.copy()
 
         # RFFT(Q)
-        self.real_arr[: self.m] = Q[::-1] / self.shape  # reversed Q and scale
-        self.real_arr[self.m : self.shape] = 0.0
-        self.rfft_obj.execute()  # output is in self.complex_arr
+        real_arr[:m] = Q[::-1] / self.shape  # reversed Q and scale
+        real_arr[m:] = 0.0
+        rfft_obj.execute()  # output is in self.complex_arr
 
         # RFFT(T) * RFFT(Q)
-        np.multiply(self.complex_arr, complex_arr_T, out=self.complex_arr)
+        np.multiply(complex_arr, complex_arr_T, out=complex_arr)
 
         # IRFFT
         # input is in self.complex_arr
         # output is in self.real_arr
-        self.irfft_obj.execute()
+        irfft_obj.execute()
 
-        return self.real_arr[self.m - 1 : self.n]
-
-
-_sliding_dot_product = SLIDING_DOT_PRODUCT()
+        return real_arr[m - 1 : self.n]
 
 
-def setup(Q, T):
-    _sliding_dot_product(Q, T)
+_sliding_dot_product = SLIDING_DOT_PRODUCT(max_shape=2**10)
+
+
+def setup(Q, T, threads=1, planning_flag="FFTW_MEASURE"):
+    _sliding_dot_product(Q, T, threads=threads, planning_flag=planning_flag)
     return
 
 
-def sliding_dot_product(Q, T):
-    return _sliding_dot_product(Q, T)
+def sliding_dot_product(Q, T, threads=1, planning_flag="FFTW_MEASURE"):
+    return _sliding_dot_product(Q, T, threads=threads, planning_flag=planning_flag)
