@@ -62,7 +62,9 @@ class SLIDING_DOT_PRODUCT:
         complex_arr_T = complex_arr.copy()
 
         # RFFT(Q)
-        real_arr[:m] = Q[::-1] / self.shape  # reversed Q and scale
+        # Scale by 1/shape to account for
+        # FFTW's unnormalized inverse FFT via execute()
+        real_arr[:m] = Q[::-1] / self.shape
         real_arr[m:] = 0.0
         rfft_obj.execute()  # output is in self.complex_arr
 
