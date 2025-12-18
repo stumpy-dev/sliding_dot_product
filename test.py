@@ -197,14 +197,12 @@ def test_setup():
 def test_pyfftw_sdp_max_n():
     from sdp.pyfftw_sdp import SLIDING_DOT_PRODUCT
 
-    sdp_obj = SLIDING_DOT_PRODUCT(max_n=2**10)
-    n_T = 2**12  # larger than max_n
-    n_Q = 2**8
-    Q = np.random.rand(n_Q)
-    T = np.random.rand(n_T)
+    sliding_dot_product = SLIDING_DOT_PRODUCT(max_n=2**10)
+    T = np.random.rand(2**12)  # len(T) is larger than max_n
+    Q = np.random.rand(2**8)
 
-    QT_comp = sdp_obj(Q, T)
-    QT_ref = naive_sliding_dot_product(Q, T)
-    np.testing.assert_allclose(QT_ref, QT_comp)
+    comp = sliding_dot_product(Q, T)
+    ref = naive_sliding_dot_product(Q, T)
+    np.testing.assert_allclose(comp, ref)
 
     return
