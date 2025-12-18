@@ -4,7 +4,7 @@ import numpy as np
 
 class SLIDING_DOT_PRODUCT:
     # https://stackoverflow.com/a/30615425/2955541
-    def __init__(self, max_n=2**10):
+    def __init__(self, max_n=2**20):
         """
         Parameters
         ----------
@@ -91,7 +91,7 @@ class SLIDING_DOT_PRODUCT:
         return real_arr[m - 1 : self.n]
 
 
-_sliding_dot_product = SLIDING_DOT_PRODUCT(max_n=2**10)
+_sliding_dot_product = SLIDING_DOT_PRODUCT(max_n=2**20)
 
 
 def setup(Q, T, threads=1, planning_flag="FFTW_MEASURE"):
