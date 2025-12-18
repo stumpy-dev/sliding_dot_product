@@ -194,7 +194,7 @@ def test_setup():
     return
 
 
-def test_pyfftw_max_n_needs_update():
+def test_pyfftw_sdp_max_n():
     from sdp.pyfftw_sdp import SLIDING_DOT_PRODUCT
 
     sdp_obj = SLIDING_DOT_PRODUCT(max_n=2**10)
@@ -203,8 +203,8 @@ def test_pyfftw_max_n_needs_update():
     Q = np.random.rand(n_Q)
     T = np.random.rand(n_T)
 
-    sdp_comp = sdp_obj(Q, T)
-    sdf_ref = naive_sliding_dot_product(Q, T)
+    QT_comp = sdp_obj(Q, T)
+    QT_ref = naive_sliding_dot_product(Q, T)
     np.testing.assert_allclose(sdp_comp, sdf_ref)
 
     return
