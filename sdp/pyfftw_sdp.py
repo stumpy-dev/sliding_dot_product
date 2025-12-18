@@ -85,8 +85,7 @@ class SLIDING_DOT_PRODUCT:
 
         # IRFFT
         # input is in complex_arr
-        # output will be in real_arr
-        irfft_obj.execute()
+        irfft_obj.execute()  # output is in real_arr
 
         return real_arr[m - 1 : self.n]
 
