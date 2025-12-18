@@ -205,6 +205,6 @@ def test_pyfftw_sdp_max_n():
 
     QT_comp = sdp_obj(Q, T)
     QT_ref = naive_sliding_dot_product(Q, T)
-    np.testing.assert_allclose(sdp_comp, sdf_ref)
+    np.testing.assert_allclose(QT_ref, QT_comp)
 
     return
