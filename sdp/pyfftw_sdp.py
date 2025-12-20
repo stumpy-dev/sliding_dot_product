@@ -13,9 +13,6 @@ class SLIDING_DOT_PRODUCT:
             the real-valued array. A complex-valued array of size `1 + (max_n // 2)`
             will also be preallocated.
         """
-        self.n = 0
-        self.next_fast_n = 0
-
         # Preallocate arrays
         self.real_arr = pyfftw.empty_aligned(max_n, dtype="float64")
         self.complex_arr = pyfftw.empty_aligned(1 + (max_n // 2), dtype="complex128")
@@ -50,22 +47,21 @@ class SLIDING_DOT_PRODUCT:
             Sliding dot product between `Q` and `T`.
         """
         m = Q.shape[0]
-        if self.n != T.shape[0]:
-            self.n = T.shape[0]
-            self.next_fast_n = pyfftw.next_fast_len(self.n)
+        n = T.shape[0]
+        next_fast_n = pyfftw.next_fast_len(n)
 
         # Update preallocated arrays if needed
-        if self.next_fast_n > len(self.real_arr):
-            self.real_arr = pyfftw.empty_aligned(self.next_fast_n, dtype="float64")
+        if next_fast_n > len(self.real_arr):
+            self.real_arr = pyfftw.empty_aligned(next_fast_n, dtype="float64")
             self.complex_arr = pyfftw.empty_aligned(
-                1 + (self.next_fast_n // 2), dtype="complex128"
+                1 + (next_fast_n // 2), dtype="complex128"
             )
 
-        real_arr = self.real_arr[: self.next_fast_n]
-        complex_arr = self.complex_arr[: 1 + (self.next_fast_n // 2)]
+        real_arr = self.real_arr[:next_fast_n]
+        complex_arr = self.complex_arr[: 1 + (next_fast_n // 2)]
 
         # Get or create FFTW objects
-        key = (self.next_fast_n, n_threads, planning_flag)
+        key = (next_fast_n, n_threads, planning_flag)
 
         rfft_obj = self.rfft_objects.get(key, None)
         if rfft_obj is None:
@@ -94,26 +90,25 @@ class SLIDING_DOT_PRODUCT:
             irfft_obj.update_arrays(complex_arr, real_arr)
 
         # RFFT(T)
-        real_arr[: self.n] = T
-        real_arr[self.n :] = 0.0
+        real_arr[:n] = T
+        real_arr[n:] = 0.0
         rfft_obj.execute()  # output is in complex_arr
         complex_arr_T = complex_arr.copy()
 
         # RFFT(Q)
         # Scale by 1/next_fast_n to account for
         # FFTW's unnormalized inverse FFT via execute()
-        real_arr[:m] = Q[::-1] / self.next_fast_n
+        real_arr[:m] = Q[::-1] / next_fast_n
         real_arr[m:] = 0.0
         rfft_obj.execute()  # output is in complex_arr
 
         # RFFT(T) * RFFT(Q)
         np.multiply(complex_arr, complex_arr_T, out=complex_arr)
 
-        # IRFFT
-        # input is in complex_arr
+        # IRFFT (input is in complex_arr)
         irfft_obj.execute()  # output is in real_arr
 
-        return real_arr[m - 1 : self.n]
+        return real_arr[m - 1 : n]
 
 
 _sliding_dot_product = SLIDING_DOT_PRODUCT()
