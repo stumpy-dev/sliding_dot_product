@@ -51,7 +51,6 @@ class SLIDING_DOT_PRODUCT:
         if self.n != T.shape[0]:
             self.n = T.shape[0]
             self.next_fast_n = pyfftw.next_fast_len(self.n)
-        key = (self.next_fast_n, n_threads, planning_flag)
 
         # Update preallocated arrays if needed
         if self.next_fast_n > len(self.real_arr):
@@ -64,6 +63,8 @@ class SLIDING_DOT_PRODUCT:
         complex_arr = self.complex_arr[: 1 + (self.next_fast_n // 2)]
 
         # Get or create FFTW objects
+        key = (self.next_fast_n, n_threads, planning_flag)
+
         rfft_obj = self.rfft_objects.get(key, None)
         if rfft_obj is None:
             rfft_obj = pyfftw.FFTW(
@@ -113,7 +114,7 @@ class SLIDING_DOT_PRODUCT:
         return real_arr[m - 1 : self.n]
 
 
-_sliding_dot_product = SLIDING_DOT_PRODUCT(max_n=2**20)
+_sliding_dot_product = SLIDING_DOT_PRODUCT()
 
 
 def setup(Q, T, n_threads=1, planning_flag="FFTW_MEASURE"):
