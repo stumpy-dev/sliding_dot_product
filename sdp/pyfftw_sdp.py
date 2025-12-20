@@ -26,6 +26,8 @@ class SLIDING_DOT_PRODUCT:
 
     def __call__(self, Q, T, n_threads=1, planning_flag="FFTW_MEASURE"):
         """
+        Compute the sliding dot product between `Q` and `T` using FFTW via pyfftw.
+
         Parameters
         ----------
         Q : numpy.ndarray
