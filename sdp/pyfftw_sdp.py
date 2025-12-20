@@ -29,10 +29,10 @@ class SLIDING_DOT_PRODUCT:
         Parameters
         ----------
         Q : numpy.ndarray
-            Query array or subsequence
+            Query array or subsequence.
 
         T : numpy.ndarray
-            Time series or sequence
+            Time series or sequence.
 
         n_threads : int, default=1
             Number of threads to use for FFTW computations.
