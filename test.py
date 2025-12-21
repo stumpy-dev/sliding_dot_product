@@ -192,3 +192,21 @@ def test_setup():
                 raise e
 
     return
+
+
+def test_pyfftw_sdp_max_n():
+    # When `len(T)` larger than `max_n` in pyfftw_sdp,
+    # the internal preallocated arrays should be resized.
+    # This test checks that functionality.
+    from sdp.pyfftw_sdp import SLIDING_DOT_PRODUCT
+
+    T = np.random.rand(2**12)
+    Q = np.random.rand(2**8)
+
+    sliding_dot_product = SLIDING_DOT_PRODUCT(max_n=2**10)
+    comp = sliding_dot_product(Q, T)
+    ref = naive_sliding_dot_product(Q, T)
+
+    np.testing.assert_allclose(comp, ref)
+
+    return
