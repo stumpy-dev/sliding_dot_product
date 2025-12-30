@@ -21,7 +21,7 @@ class SLIDING_DOT_PRODUCT:
         self.rfft_objects = {}
         self.irfft_objects = {}
 
-    def __call__(self, Q, T, n_threads=1, planning_flag="FFTW_MEASURE"):
+    def __call__(self, Q, T, n_threads=1, planning_flag="FFTW_ESTIMATE"):
         """
         Compute the sliding dot product between `Q` and `T` using FFTW via pyfftw.
 
@@ -114,10 +114,10 @@ class SLIDING_DOT_PRODUCT:
 _sliding_dot_product = SLIDING_DOT_PRODUCT()
 
 
-def setup(Q, T, n_threads=1, planning_flag="FFTW_MEASURE"):
+def setup(Q, T, n_threads=1, planning_flag="FFTW_ESTIMATE"):
     _sliding_dot_product(Q, T, n_threads=n_threads, planning_flag=planning_flag)
     return
 
 
-def sliding_dot_product(Q, T, n_threads=1, planning_flag="FFTW_MEASURE"):
+def sliding_dot_product(Q, T, n_threads=1, planning_flag="FFTW_ESTIMATE"):
     return _sliding_dot_product(Q, T, n_threads=n_threads, planning_flag=planning_flag)
