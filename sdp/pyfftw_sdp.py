@@ -98,7 +98,7 @@ class SLIDING_DOT_PRODUCT:
         # RFFT(Q)
         # Scale by 1/next_fast_n to account for
         # FFTW's unnormalized inverse FFT via execute()
-        real_arr[:m] = Q[::-1] / next_fast_n
+        np.multiply(Q[::-1], 1.0 / next_fast_n, out=real_arr[:m])
         real_arr[m:] = 0.0
         rfft_obj.execute()  # output is in complex_arr
 
