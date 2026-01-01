@@ -1,9 +1,9 @@
 % This function computes the sliding dot product between
 % a query Q and a time series T using the FFT method.
 
-%See TABLE I (old) here: https://www.cs.ucr.edu/~eamonn/PID4481997_extend_Matrix%20Profile_I.pdf
-%See MASS_V2 here: https://www.cs.unm.edu/~mueen/FastestSimilaritySearch.html
-%MASS_V2 is used in [DAMP_2_0.m](https://drive.google.com/file/d/1EPDhFXQ2goTJ5m_x1S84-KNpQFsRNVmf/view?usp=sharing)
+% See TABLE I (old) here: https://www.cs.ucr.edu/~eamonn/PID4481997_extend_Matrix%20Profile_I.pdf
+% See MASS_V2 here: https://www.cs.unm.edu/~mueen/FastestSimilaritySearch.html
+% MASS_V2 is used in [DAMP_2_0.m](https://drive.google.com/file/d/1EPDhFXQ2goTJ5m_x1S84-KNpQFsRNVmf/view?usp=sharing)
 
 function [z] = MASS_SDP(Q, T)
     % Input:
