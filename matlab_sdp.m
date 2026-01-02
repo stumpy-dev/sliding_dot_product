@@ -5,7 +5,7 @@
 % See MASS_V2 here: https://www.cs.unm.edu/~mueen/FastestSimilaritySearch.html
 % MASS_V2 is used in [DAMP_2_0.m](https://drive.google.com/file/d/1EPDhFXQ2goTJ5m_x1S84-KNpQFsRNVmf/view?usp=sharing)
 
-function [z] = MASS_SDP(Q, T)
+function [z] = fft_sdp(Q, T)
     % Input:
     %   Q - query vector
     %   T - time series vector
@@ -16,7 +16,7 @@ function [z] = MASS_SDP(Q, T)
     n = length(T);
 
     Q = Q(end:-1:1);  % Reverse the query
-    Q(m+1:n) = 0;  % Aappend zeros
+    Q(m+1:n) = 0;  % Append zeros
 
     X = fft(T);
     Y = fft(Q);
