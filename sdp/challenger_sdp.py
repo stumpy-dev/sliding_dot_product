@@ -21,17 +21,18 @@ def _sliding_dot_product(Q, T):
     Q_padded[p1 : p1 + m] = Q
     T_padded[p1 + p2 :] = T
 
-    Q_dct = dct(Q_padded, type=2, norm="ortho")
-    T_dct = dct(T_padded, type=2, norm="ortho")
+    QT_dct = np.empty(N + 1, dtype=np.float64)
+    QT_dct[N] = 0
+    # QT_dct[:N] will be filled with DCT compuation of Q & T
 
-    QT_dct = Q_dct * T_dct
-    QT_dct = np.append(QT_dct, 0)
+    QT_dct[:N] = dct(Q_padded, type=2, norm="ortho")
+    np.multiply(QT_dct[:N], dct(T_padded, type=2, norm="ortho"), out=QT_dct[:N])
     QT_dct[0] *= np.sqrt(2)
 
-    QT = dct(QT_dct, type=1, norm="ortho")
-    QT[0] *= 2
+    QT_dct[:] = dct(QT_dct, type=1, norm="ortho")
+    QT_dct[0] *= 2
 
-    return np.sqrt(2 * N) * QT[p2 : p2 + (n - m + 1)]
+    return np.sqrt(2 * N) * QT_dct[p2 : p2 + (n - m + 1)]
 
 
 def setup(Q, T):
