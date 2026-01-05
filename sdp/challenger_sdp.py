@@ -16,6 +16,7 @@ class SLIDING_DOT_PRODUCT:
         # Preallocate arrays
         self.real_arr_A = pyfftw.empty_aligned(max_n, dtype="float64")
         self.real_arr_B = pyfftw.empty_aligned(max_n, dtype="float64")
+        self.toggle_one = (-1) ** np.arange(max_n)
 
         # Store FFTW objects, keyed by (next_fast_n, n_threads, planning_flag)
         self.dct_typeII_objects = {}
@@ -57,6 +58,7 @@ class SLIDING_DOT_PRODUCT:
         if N_plus_1 > len(self.real_arr_A):
             self.real_arr_A = pyfftw.empty_aligned(N_plus_1, dtype="float64")
             self.real_arr_B = pyfftw.empty_aligned(N_plus_1, dtype="float64")
+            self.toggle_one = (-1) ** np.arange(N_plus_1)
 
         real_arr_A = self.real_arr_A[:N_plus_1]
         real_arr_B = self.real_arr_B[:N_plus_1]
@@ -98,22 +100,15 @@ class SLIDING_DOT_PRODUCT:
         dct_typeII_object.execute()  # output is in real_arr_B
         dct_Q = real_arr_B[:N].copy()
 
-        # ortho scaling
-        dct_Q[0] *= 1 / (2 * np.sqrt(N))
-        dct_Q[1:] *= 1 / np.sqrt(2 * N)
-
         # Pad T
         real_arr_A[: p1 + p2] = 0
         real_arr_A[p1 + p2 : N] = T
         dct_typeII_object.execute()
 
-        # ortho scaling
-        real_arr_B[0] *= 1 / (2 * np.sqrt(N))
-        real_arr_B[1:N] *= 1 / np.sqrt(2 * N)
-
         # Multiply Result and some modifications
         np.multiply(real_arr_B[:N], dct_Q, out=real_arr_B[:N])
-        real_arr_B[0] *= np.sqrt(2)
+        real_arr_B[0] *= np.sqrt(2) / (4 * N)
+        real_arr_B[1:N] *= 1 / (2 * N)
         real_arr_B[N] = 0
         dct_typeI_object.execute()
 
@@ -121,13 +116,10 @@ class SLIDING_DOT_PRODUCT:
         # Need to correct output real_arr_A since scipy's dct type 1...
         # with norm 'ortho' is used
         n_arr = len(real_arr_A)
-        correction = (np.sqrt(2) - 1) * (
-            real_arr_B[0] + ((-1) ** np.arange(n_arr)) * real_arr_B[-1]
+        real_arr_A += (np.sqrt(2) - 1) * (
+            real_arr_B[0] + self.toggle_one[:n_arr] * real_arr_B[-1]
         )
-        real_arr_A += correction
-
-        denom = np.sqrt(2 * (n_arr - 1))
-        real_arr_A[:] = real_arr_A / denom
+        real_arr_A[:] = real_arr_A / np.sqrt(2 * (n_arr - 1))
         real_arr_A[0] /= np.sqrt(2)
         real_arr_A[-1] /= np.sqrt(2)
 
