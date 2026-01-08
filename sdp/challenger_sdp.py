@@ -2,13 +2,10 @@ import math
 
 import numpy as np
 
-# import scipy._lib.array_api_extra as xpx
-
 from scipy.special import lambertw
 from scipy.fft import next_fast_len
 from scipy._lib._array_api import array_namespace
-from scipy import fft as sp_fft
-from scipy.signal._signaltools import _apply_conv_mode, _split  # , fftconvolve
+from scipy.signal._signaltools import _apply_conv_mode, _split
 from scipy.fft._pocketfft.basic import r2c, c2r, r2cn, c2rn
 
 
@@ -27,7 +24,6 @@ def _sliding_dot_product_r2c2r(Q, T):
     return c2r(False, np.multiply(fft_2d[0], fft_2d[1]), n=next_fast_n)[m - 1 : n]
 
 
-##########
 def _rfft_irfft_r2c2rn(Q_2D, T_2D, shape):
 
     return c2rn(
@@ -38,26 +34,17 @@ def _rfft_irfft_r2c2rn(Q_2D, T_2D, shape):
     )
 
 
-##########
-
-
-def _freq_domain_conv(T_2D, Q_2D, shape):
-    sp1 = sp_fft.rfftn(T_2D, shape, axes=1)
-    sp2 = sp_fft.rfftn(Q_2D, shape, axes=1)
-
-    return sp_fft.irfftn(sp1 * sp2, shape, axes=1)
-
-
 def _calc_oa_lens(n, m):
     fallback = (n + m - 1, None, n, m)
-    if n == m or m >= n:
-        return fallback
+    # assuming n > m
+    # otherwise, need to add the following:
+    # if n == m or m >= n:
+    #    return fallback
 
     overlap = m - 1
     opt_size = -overlap * lambertw(-1 / (2 * math.e * overlap), k=-1).real
-    block_size = next_fast_len(math.ceil(opt_size), real=True)  # real=True?
+    block_size = next_fast_len(math.ceil(opt_size), real=True)
 
-    # Use conventional FFT convolve if there is only going to be one block.
     if block_size >= n:
         return fallback
 
@@ -73,14 +60,7 @@ def _sliding_dot_product(T, Q):
     n = T.shape[0]
     m = Q.shape[0]
 
-    # in1 = T
-    # in2 = Q
-    # axes = [0]
-    s1 = (n,)
-    s2 = (m,)
-
     shape_final = n + m - 1
-    shape_final_lst = [shape_final]
     block_size, overlaps, T_step, Q_step = _calc_oa_lens(n, m)
     if T_step == n and Q_step == m:
         return _sliding_dot_product_r2c2r(Q, T)
@@ -116,10 +96,10 @@ def _sliding_dot_product(T, Q):
     ret = xp.reshape(ret, shape_ret)
 
     # Slice to the correct size.
-    slice_final = tuple([slice(islice) for islice in shape_final_lst])
+    slice_final = tuple([slice(islice) for islice in [shape_final]])
     ret = ret[slice_final]
 
-    return _apply_conv_mode(ret, s1, s2, "valid", [0], xp)
+    return _apply_conv_mode(ret, (n,), (m,), "valid", [0], xp)
 
 
 def setup(Q, T):
