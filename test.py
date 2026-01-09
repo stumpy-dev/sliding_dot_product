@@ -210,3 +210,18 @@ def test_pyfftw_sdp_max_n():
     np.testing.assert_allclose(comp, ref)
 
     return
+
+
+def test_oaconvolve_sdp_blocksize():
+    from sdp.challenger_sdp import sliding_dot_product
+
+    T = np.random.rand(2**10)
+    Q = np.random.rand(2**8)
+    block_size = 2**9
+
+    comp = sliding_dot_product(Q, T, block_size=block_size)
+    ref = naive_sliding_dot_product(Q, T)
+
+    np.testing.assert_allclose(comp, ref)
+
+    return
