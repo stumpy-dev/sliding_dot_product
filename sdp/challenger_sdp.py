@@ -44,14 +44,16 @@ def _sliding_dot_product_r2c2r(Q, T):
     return c2r(False, np.multiply(fft_2d[0], fft_2d[1]), n=next_fast_n)[m - 1 : n]
 
 
-def _sliding_dot_product(Q, T):
+def _sliding_dot_product(Q, T, block_size=None):
     m = Q.shape[0]
     n = T.shape[0]
 
-    # compute optimal block size
     overlap = m - 1
-    opt_size = -overlap * lambertw(-1 / (2 * math.e * overlap), k=-1).real
-    block_size = next_fast_len(math.ceil(opt_size), real=True)
+    if block_size is None:
+        # compute optimal block size
+        opt_size = -overlap * lambertw(-1 / (2 * math.e * overlap), k=-1).real
+        block_size = next_fast_len(math.ceil(opt_size), real=True)
+
     if block_size >= n:
         return _sliding_dot_product_r2c2r(Q, T)
 
@@ -70,7 +72,7 @@ def setup(Q, T):
     return
 
 
-def sliding_dot_product(Q, T):
+def sliding_dot_product(Q, T, block_size=None):
     if len(Q) == len(T):
         return np.dot(Q, T)
-    return _sliding_dot_product(Q, T)
+    return _sliding_dot_product(Q, T, block_size=block_size)
