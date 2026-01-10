@@ -5,6 +5,24 @@ from scipy.fft import next_fast_len
 from scipy.fft._pocketfft.basic import r2c, c2r
 
 
+def _compute_block_size(m, n, block_size=None):
+    """
+    Return a block size for the overlap-add method.
+    """
+    if block_size is None:
+        # Find optimal block_size based on m and n
+        if m >= n / 2:
+            block_size = n  # i.e. no blocking
+        else:
+            overlap = m - 1
+            opt_size = -overlap * lambertw(-1 / (2 * math.e * overlap), k=-1).real
+            block_size = next_fast_len(math.ceil(opt_size), real=True)
+
+    block_size = max(block_size, m)
+
+    return min(block_size, n)
+
+
 def _rfft_irfft_r2c2r_block(Q, T, block_size):
     m = Q.shape[0]
     n = T.shape[0]
@@ -44,23 +62,12 @@ def _sliding_dot_product_r2c2r(Q, T):
     return c2r(False, np.multiply(fft_2d[0], fft_2d[1]), n=next_fast_n)[m - 1 : n]
 
 
-def _sliding_dot_product(Q, T, block_size=None):
+def _sliding_dot_product(Q, T, block_size):
     m = Q.shape[0]
     n = T.shape[0]
 
     overlap = m - 1
-    if block_size is None:
-        # compute optimal block size
-        opt_size = -overlap * lambertw(-1 / (2 * math.e * overlap), k=-1).real
-        block_size = next_fast_len(math.ceil(opt_size), real=True)
-
-    if block_size >= n:
-        return _sliding_dot_product_r2c2r(Q, T)
-
-    # perform fft-ifft operation on blocks
     ret = _rfft_irfft_r2c2r_block(Q, T, block_size)
-
-    # overlap-add process
     out = ret[:, :-overlap]
     out[1:, :overlap] += ret[:-1, -overlap:]
     out = np.reshape(out, (-1,))
@@ -73,6 +80,13 @@ def setup(Q, T):
 
 
 def sliding_dot_product(Q, T, block_size=None):
-    if len(Q) == len(T):
+    m = Q.shape[0]
+    n = T.shape[0]
+    if m == n:
         return np.dot(Q, T)
-    return _sliding_dot_product(Q, T, block_size=block_size)
+
+    block_size = _compute_block_size(m, n, block_size=block_size)
+    if block_size >= n:
+        return _sliding_dot_product_r2c2r(Q, T)
+    else:
+        return _sliding_dot_product(Q, T, block_size)
