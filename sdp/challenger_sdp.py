@@ -105,8 +105,8 @@ def _pocketfft_oaconvolve(Q, T, conv_block_size):
     # 5a + 6b
     # ]
     # Now this is equivalent to X_conv_Y.
-    overlap = len(Q) - 1
     QT_conv_blocks = _pocketfft_oaconvolve_block(Q, T, conv_block_size)
+    overlap = len(Q) - 1
     out = QT_conv_blocks[:, :-overlap]
     out[1:, :overlap] += QT_conv_blocks[:-1, -overlap:]
     return np.reshape(out, (-1,))
