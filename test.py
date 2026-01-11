@@ -217,9 +217,9 @@ def test_oaconvolve_sdp_blocksize():
 
     T = np.random.rand(2**10)
     Q = np.random.rand(2**8)
-    block_size = 2**9
+    conv_block_size = 2**9
 
-    comp = sliding_dot_product(Q, T, block_size=block_size)
+    comp = sliding_dot_product(Q, T, conv_block_size=conv_block_size)
     ref = naive_sliding_dot_product(Q, T)
 
     np.testing.assert_allclose(comp, ref)
