@@ -15,6 +15,8 @@ def _compute_block_size(m, n, conv_block_size=None):
         if m >= n / 2:
             conv_block_size = n  # i.e. no blocking
         else:
+            # To minimize Eq. 3 in
+            # https://en.wikipedia.org/wiki/Overlap–add_method
             overlap = m - 1
             opt_size = -overlap * lambertw(-1 / (2 * math.e * overlap), k=-1).real
             conv_block_size = next_fast_len(math.ceil(opt_size), real=True)
