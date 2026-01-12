@@ -54,19 +54,18 @@ def _pocketfft_oaconvolve_block(Q, T, conv_block_size):
 
 
 def _pocketfft_oaconvolve(Q, T, conv_block_size):
-    # Linear convolution between two 1D arrays X and Y
+    # Circular convolution between two 1D arrays X and Y
     # (of same length N) is an array with length N,
     # and its n-th element is defined as:
-    # out[n] = sum_{i=0}^{N-1} X[i] * Y[(n - i)]
-    # and, for any out-of-range index, the value is 0.
+    # out[n] = sum_{i=0}^{N-1} X[i] * Y[(n - i) mod N]
 
-    # To compute this linear convolution:
+    # To compute this circular convolution:
     # Approach I: Regular Method
     # X: 1 2 3 4 5 6 --conv-- Y: b a 0 0 0 0
 
     # X_conv_Y:
     # [
-    # 1b,
+    # 1b + 6a,
     # 1a + 2b,
     # 2a + 3b,
     # 3a + 4b,
@@ -99,14 +98,14 @@ def _pocketfft_oaconvolve(Q, T, conv_block_size):
     # will be added to first `M-1` element(s) of (k+1)-th block.
     # Final output:
     # [
-    # 1b
+    # 1b  # ??
     # 1a + 2b,
     # 3b (+ 2a),
     # 3a + 4b,
     # 5b (+ 4a),
     # 5a + 6b
     # ]
-    # Now this is equivalent to X_conv_Y.
+    # Now this is equivalent to X_conv_Y, for [M-1: N]
     QT_conv_blocks = _pocketfft_oaconvolve_block(Q, T, conv_block_size)
     overlap = len(Q) - 1
     out = QT_conv_blocks[:, :-overlap]
