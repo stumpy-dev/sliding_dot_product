@@ -54,58 +54,6 @@ def _pocketfft_oaconvolve_block(Q, T, conv_block_size):
 
 
 def _pocketfft_oaconvolve(Q, T, conv_block_size):
-    # Circular convolution between two 1D arrays X and Y
-    # (of same length N) is an array with length N,
-    # and its n-th element is defined as:
-    # out[n] = sum_{i=0}^{N-1} X[i] * Y[(n - i) mod N]
-
-    # To compute this circular convolution:
-    # Approach I: Regular Method
-    # X: 1 2 3 4 5 6 --conv-- Y: b a 0 0 0 0
-
-    # X_conv_Y:
-    # [
-    # 1b + 6a,
-    # 1a + 2b,
-    # 2a + 3b,
-    # 3a + 4b,
-    # 4a + 5b,
-    # 5a + 6b
-    # ]
-
-    # Approach II: Overlap-Add Method
-    # Step1: Chunk T and compute convolution block-wise
-    # Choose a block size -->  3
-    # Find chunk size -->  block_size - (M - 1) = 2
-    # Chunk T according to chunk size, and Pad
-    # each chunk with M-1 zeros at the end
-
-    # X1: 1 2 0  --conv-- Y: b a 0
-    # X2: 3 4 0  --conv-- Y: b a 0
-    # X3: 5 6 0  --conv-- Y: b a 0
-
-    # X1_conv_Y: [1b, 1a + 2b, 2a]
-    # X2_conv_Y: [3b, 3a + 4b, 4a]
-    # X3_conv_Y: [5b, 5a + 6b, 6a]
-
-    # Step 2: Add the overlapping parts
-    # Slice the blocks based on `chunk_size`, so:
-    # [1b, 1a + 2b]
-    # [3b, 3a + 4b]
-    # [5b, 5a + 6b]
-
-    # The last `M-1` element(s) of k-th block
-    # will be added to first `M-1` element(s) of (k+1)-th block.
-    # Final output:
-    # [
-    # 1b  # ??
-    # 1a + 2b,
-    # 3b (+ 2a),
-    # 3a + 4b,
-    # 5b (+ 4a),
-    # 5a + 6b
-    # ]
-    # Now this is equivalent to X_conv_Y, for [M-1: N]
     QT_conv_blocks = _pocketfft_oaconvolve_block(Q, T, conv_block_size)
     overlap = len(Q) - 1
     out = QT_conv_blocks[:, :-overlap]
