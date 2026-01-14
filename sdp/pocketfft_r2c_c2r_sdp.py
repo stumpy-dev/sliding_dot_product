@@ -3,7 +3,7 @@ from scipy.fft import next_fast_len
 from scipy.fft._pocketfft.basic import r2c, c2r
 
 
-def _pocketfft_convolve(Q, T):
+def _pocketfft_valid_convolve(Q, T):
     n = len(T)
     m = len(Q)
     next_fast_n = next_fast_len(n, real=True)
@@ -15,7 +15,9 @@ def _pocketfft_convolve(Q, T):
     tmp[1, n:] = 0.0
     fft_2d = r2c(True, tmp, axis=-1)
 
-    return c2r(False, np.multiply(fft_2d[0], fft_2d[1]), n=next_fast_n)
+    return c2r(False, np.multiply(fft_2d[0], fft_2d[1]), n=next_fast_n)[
+        len(Q) - 1 : len(T)
+    ]
 
 
 def setup(Q, T):
@@ -23,4 +25,4 @@ def setup(Q, T):
 
 
 def sliding_dot_product(Q, T):
-    return _pocketfft_convolve(Q[::-1], T)[len(Q) - 1 : len(T)]
+    return _pocketfft_valid_convolve(Q[::-1], T)

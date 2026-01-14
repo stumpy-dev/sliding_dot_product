@@ -53,16 +53,25 @@ def _pocketfft_oaconvolve_block(Q, T, conv_block_size):
     return c2r(False, np.multiply(fft_2d[:-1], fft_2d[[-1]]), n=conv_block_size)
 
 
-def _pocketfft_oaconvolve(Q, T, conv_block_size):
+def _pocketfft_valid_oaconvolve(Q, T, conv_block_size):
     QT_conv_blocks = _pocketfft_oaconvolve_block(Q, T, conv_block_size)
     overlap = len(Q) - 1
     out = QT_conv_blocks[:, :-overlap]
     out[1:, :overlap] += QT_conv_blocks[:-1, -overlap:]
-    return np.reshape(out, (-1,))
+
+    return np.reshape(out, (-1,))[len(Q) - 1 : len(T)]
 
 
-def _sliding_dot_product(Q, T, conv_block_size):
-    return _pocketfft_oaconvolve(Q[::-1], T, conv_block_size)[len(Q) - 1 : len(T)]
+def _valid_convolve(Q, T, conv_block_size=None):
+    m = len(Q)
+    n = len(T)
+    conv_block_size = _compute_block_size(m, n, conv_block_size=conv_block_size)
+    if conv_block_size >= n:
+        out = pocketfft_r2c_c2r_sdp._pocketfft_valid_convolve(Q, T)
+    else:
+        out = _pocketfft_valid_oaconvolve(Q, T, conv_block_size)
+
+    return out
 
 
 def setup(Q, T):
@@ -70,13 +79,7 @@ def setup(Q, T):
 
 
 def sliding_dot_product(Q, T, conv_block_size=None):
-    m = Q.shape[0]
-    n = T.shape[0]
-    if m == n:
+    if len(Q) == len(T):
         return np.dot(Q, T)
-
-    conv_block_size = _compute_block_size(m, n, conv_block_size=conv_block_size)
-    if conv_block_size >= n:
-        return pocketfft_r2c_c2r_sdp.sliding_dot_product(Q, T)
     else:
-        return _sliding_dot_product(Q, T, conv_block_size)
+        return _valid_convolve(Q[::-1], T, conv_block_size=conv_block_size)
