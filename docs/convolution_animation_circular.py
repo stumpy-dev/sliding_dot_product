@@ -5,13 +5,13 @@ from matplotlib.animation import FuncAnimation
 # 1. Data Setup
 T = [1, 2, 3, 4, 5]
 
-# Periodic extension (2 periods)
-periodic_T = T * 2  # [1,2,3,4,5,1,2,3,4,5]
+# Periodic extension (2 periods), shifted to start at value 2
+periodic_T = (T * 2)[1:]  # [2,3,4,5,1,2,3,4,5]
 
 kernel = [0, 0, 1, 2, 3]
 
 num_frames = 5
-start_offset = 1  # start from periodic_T[1]
+start_offset = 0  # periodic_T already starts from value 2
 
 # Pre-calculate results
 all_results = []
@@ -39,6 +39,14 @@ def update(frame):
         ax.text(x_pos + 0.5, 2.0, str(val),
                 ha='center', va='center', fontsize=14, fontweight='bold')
 
+    # --- Annotation for Kernel (moves with frame) ---
+    kernel_start = frame + start_offset
+    kernel_end = kernel_start + len(kernel)
+    ax.annotate('', xy=(kernel_start, 2.85), xytext=(kernel_end, 2.85),
+                arrowprops=dict(arrowstyle='<->', color='green', lw=1.5))
+    ax.text(kernel_start + len(kernel) / 2, 3.15, "Flipped Qr",
+            ha='center', color='green', fontsize=12, fontweight='bold')
+
     # --- Draw Periodic Input ---
     for i, val in enumerate(periodic_T):
         is_active = (frame + start_offset) <= i < (frame + start_offset + len(kernel))
@@ -51,10 +59,16 @@ def update(frame):
         ax.text(i + 0.5, 0.5, str(val),
                 ha='center', va='center', fontsize=14, fontweight='bold')
 
+    # --- Per-cell correspondence lines (Kernel -> Input) ---
+    for i in range(len(kernel)):
+        x = frame + start_offset + i + 0.5
+        ax.plot([x, x], [1.5, 1.0],
+                color='orange', linestyle=':', lw=1.5, alpha=0.8)
+
     # --- Annotation for Periodicity ---
-    ax.annotate('', xy=(len(T), -0.3), xytext=(2*len(T), -0.3),
+    ax.annotate('', xy=(0, -0.3), xytext=(len(T), -0.3),
                 arrowprops=dict(arrowstyle='<->', color='blue', lw=1.5))
-    ax.text(len(T) + len(T)/2, -0.6, "One Period (T)",
+    ax.text(len(T) / 2, -0.6, "One Period (T)",
             ha='center', color='blue', fontsize=12, fontweight='bold')
 
     # --- Draw Output ---
@@ -95,7 +109,7 @@ def update(frame):
             ha='center', fontsize=11, family='monospace',
             bbox=dict(facecolor='white', alpha=0.5))
 
-    plt.title("Circular Convolution (Periodic View)", fontsize=16, pad=20)
+    plt.title(f"Circular Convolution\n Between T and Qr={kernel[::-1]}", fontsize=16, pad=20)
 
 ani = FuncAnimation(fig, update, frames=num_frames,
                     interval=1500, repeat=True)

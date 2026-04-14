@@ -33,6 +33,12 @@ def update(frame):
         ax.text(x_pos + 0.5, 2.0, str(val),
                 ha='center', va='center', fontsize=14, fontweight='bold')
 
+    # --- Annotation for Kernel (moves with frame) ---
+    ax.annotate('', xy=(frame, 2.85), xytext=(frame + K, 2.85),
+                arrowprops=dict(arrowstyle='<->', color='green', lw=1.5))
+    ax.text(frame + K / 2, 3.15, "Flipped Qr",
+            ha='center', color='green', fontsize=12, fontweight='bold')
+
     # --- Draw Input Array (Middle) ---
     for i, val in enumerate(T):
         is_active = frame <= i < frame + K
@@ -50,6 +56,12 @@ def update(frame):
                 arrowprops=dict(arrowstyle='<->', color='blue', lw=1.5))
     ax.text(N / 2, -0.6, "Input Array (T)",
             ha='center', color='blue', fontsize=12, fontweight='bold')
+
+    # --- Per-cell correspondence lines (Kernel -> T) ---
+    for i in range(K):
+        x_center = frame + i + 0.5
+        ax.plot([x_center, x_center], [1.5, 1.0],
+                color='orange', linestyle=':', lw=2, alpha=0.8)
 
     # --- Draw Output Array (Bottom) ---
     ax.text(-0.2, -1.5, "Output:", va='center',
@@ -86,7 +98,7 @@ def update(frame):
             ha='center', fontsize=11, family='monospace',
             bbox=dict(facecolor='white', alpha=0.5))
 
-    plt.title("Valid Convolution Visualizer", fontsize=16, pad=20)
+    plt.title(f"Valid Convolution\n Between T and Qr={kernel[::-1]}", fontsize=16, pad=20)
 
 ani = FuncAnimation(fig, update, frames=num_frames,
                     interval=1500, repeat=True)
