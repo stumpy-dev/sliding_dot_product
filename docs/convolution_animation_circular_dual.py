@@ -116,10 +116,10 @@ def draw(ax, T, kernel, periodic_T, all_results, frame, title, period_label, out
 # ----------- Animation -----------
 def update(frame):
     draw(ax1, T1, kernel1, periodic_T1, results1, frame,
-         "Circular Convolution 1", "One Period (T1)", "Output1:")
+         "Circular Convolution 1", "One Period (T1_padded)", "Output1:")
 
     draw(ax2, T2, kernel2, periodic_T2, results2, frame,
-         "Circular Convolution 2", "One Period (T2)", "Output2:")
+         "Circular Convolution 2", "One Period (T2_padded)", "Output2:")
 
 
 

@@ -44,7 +44,7 @@ def update(frame):
     kernel_end = kernel_start + len(kernel)
     ax.annotate('', xy=(kernel_start, 2.85), xytext=(kernel_end, 2.85),
                 arrowprops=dict(arrowstyle='<->', color='green', lw=1.5))
-    ax.text(kernel_start + len(kernel) / 2, 3.15, "Flipped Qr",
+    ax.text(kernel_start + len(kernel) / 2, 3.15, "Flipped Qr_padded",
             ha='center', color='green', fontsize=12, fontweight='bold')
 
     # --- Draw Periodic Input ---
@@ -66,9 +66,11 @@ def update(frame):
                 color='orange', linestyle=':', lw=1.5, alpha=0.8)
 
     # --- Annotation for Periodicity ---
-    ax.annotate('', xy=(0, -0.3), xytext=(len(T), -0.3),
+    period_start = 4
+    period_end = period_start + len(T)
+    ax.annotate('', xy=(period_start, -0.3), xytext=(period_end, -0.3),
                 arrowprops=dict(arrowstyle='<->', color='blue', lw=1.5))
-    ax.text(len(T) / 2, -0.6, "One Period (T)",
+    ax.text((period_start + period_end) / 2, -0.6, "one period of T",
             ha='center', color='blue', fontsize=12, fontweight='bold')
 
     # --- Draw Output ---
