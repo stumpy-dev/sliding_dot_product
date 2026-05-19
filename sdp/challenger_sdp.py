@@ -9,11 +9,28 @@ from . import pocketfft_r2c_c2r_sdp
 def _compute_block_size(m, n, conv_block_size=None):
     """
     Return a block size for the overlap-add method.
+
+    Parameters
+    ----------
+    m : int
+        Length of the query array Q.
+
+    n : int
+        Length of the time series T.
+
+    conv_block_size : int, default None
+        Block size for the convolution. When `conv_block_size` is None,
+        it will be set to an optimal value, internally computed based
+        on the lengths of Q and T.
+
+    Returns
+    -------
+    conv_block_size : int
+        Block size for the convolution. Will be at least `m` and at most `n`.
     """
     if conv_block_size is None:
-        # Find optimal block_size based on m and n
         if m >= n / 2:
-            conv_block_size = n  # i.e. no blocking
+            conv_block_size = n
         else:
             # To minimize Eq. 3 in
             # https://en.wikipedia.org/wiki/Overlap–add_method
@@ -21,32 +38,39 @@ def _compute_block_size(m, n, conv_block_size=None):
             opt_size = -overlap * lambertw(-1 / (2 * math.e * overlap), k=-1).real
             conv_block_size = next_fast_len(math.ceil(opt_size), real=True)
 
+    # Ensure that conv_block_size is at least m, so that
+    # it can cover at least one element of `T` in each block
     conv_block_size = max(conv_block_size, m)
 
     return min(conv_block_size, n)
 
 
-def _pocketfft_oaconvolve_block(Q, T, conv_block_size):
+def _pocketfft_circular_convolve_block(Q, T, conv_block_size):
     m = Q.shape[0]
     n = T.shape[0]
 
-    T_chunk_size = conv_block_size - (m - 1)
-    n_chunks = math.ceil(n / T_chunk_size)
-    last_chunk_start = (n_chunks - 1) * T_chunk_size
+    # Each block of the convolution contains part of `T`,
+    # padded with `len(Q)-1` zeros. Therefore, to compute
+    # the number of blocks, we need to consider the number
+    # of elements of `T` that can be covered by each block,
+    # which is `conv_block_size - (m - 1)`.
+    T_block_size = conv_block_size - (m - 1)
+    n_blocks = math.ceil(n / T_block_size)
+    last_block_start = (n_blocks - 1) * T_block_size
 
-    tmp = np.empty((n_chunks + 1, conv_block_size), dtype=np.float64)
+    tmp = np.empty((n_blocks + 1, conv_block_size), dtype=np.float64)
 
     # fill with T, block-wise
-    tmp[: n_chunks - 1, :T_chunk_size] = T[:last_chunk_start].reshape(
-        n_chunks - 1, T_chunk_size
+    tmp[: n_blocks - 1, :T_block_size] = T[:last_block_start].reshape(
+        n_blocks - 1, T_block_size
     )
-    tmp[: n_chunks - 1, T_chunk_size:] = 0.0
-    tmp[n_chunks - 1, : n - last_chunk_start] = T[last_chunk_start:]
-    tmp[n_chunks - 1, n - last_chunk_start :] = 0.0
+    tmp[: n_blocks - 1, T_block_size:] = 0.0
+    tmp[n_blocks - 1, : n - last_block_start] = T[last_block_start:]
+    tmp[n_blocks - 1, n - last_block_start :] = 0.0
 
     # fill with Q
-    tmp[n_chunks, :m] = Q
-    tmp[n_chunks, m:] = 0.0
+    tmp[n_blocks, :m] = Q
+    tmp[n_blocks, m:] = 0.0
 
     fft_2d = r2c(True, tmp, axis=-1)
 
@@ -54,15 +78,73 @@ def _pocketfft_oaconvolve_block(Q, T, conv_block_size):
 
 
 def _pocketfft_valid_oaconvolve(Q, T, conv_block_size):
-    QT_conv_blocks = _pocketfft_oaconvolve_block(Q, T, conv_block_size)
+    """
+    Compute the valid convolution between Q and T using the overlap-add method.
+
+    Parameters
+    ----------
+    Q : numpy.ndarray
+        Query array or subsequence.
+
+    T : numpy.ndarray
+        Time series or sequence.
+
+    conv_block_size : int
+        Block size for the convolution. Cannot be less than len(Q).
+
+    Returns
+    -------
+    out : numpy.ndarray
+        The valid convolution between Q and T.
+
+    Notes
+    -----
+    Each block of the convolution contains part of `T`, padded with `len(Q)-1`
+    zeros. Therefore, `conv_block_size` must be at least `len(Q)` so that it
+    can cover at least one element of `T` in each block.
+
+    The overlap-add method computes the circular convolution between each block
+    and padded `Q`. The results are then combined to obtain the valid convolution
+    between `Q` and `T`.
+    """
+    QT_conv_blocks = _pocketfft_circular_convolve_block(Q, T, conv_block_size)
     overlap = len(Q) - 1
     out = QT_conv_blocks[:, :-overlap]
+
+    # Add the overlapping parts of the convolution blocks
+    # The head of each block is updated with the tail of the previous block
     out[1:, :overlap] += QT_conv_blocks[:-1, -overlap:]
 
     return np.reshape(out, (-1,))[len(Q) - 1 : len(T)]
 
 
 def _valid_convolve(Q, T, conv_block_size=None):
+    """
+    Compute the valid convolution between Q and T
+
+    Parameters
+    ----------
+    Q : numpy.ndarray
+        Query array or subsequence.
+
+    T : numpy.ndarray
+        Time series or sequence.
+
+    conv_block_size : int, default None
+        Block size for the convolution. When `conv_block_size` is None,
+        it will be set to an optimal value, internally computed based on
+        the lengths of Q and T.
+
+    Returns
+    -------
+    out : numpy.ndarray
+        The valid convolution between Q and T.
+
+    Notes
+    -----
+    The valid convolution between Q and T is equivalent to
+    the sliding dot product between Q[::-1] and T.
+    """
     m = len(Q)
     n = len(T)
     conv_block_size = _compute_block_size(m, n, conv_block_size=conv_block_size)
@@ -79,6 +161,27 @@ def setup(Q, T):
 
 
 def sliding_dot_product(Q, T, conv_block_size=None):
+    """
+    Compute the sliding dot product between Q and T
+
+    Parameters
+    ----------
+    Q : numpy.ndarray
+        Query array or subsequence.
+
+    T : numpy.ndarray
+        Time series or sequence.
+
+    conv_block_size : int, default None
+        Block size for the convolution. When `conv_block_size` is None,
+        it will be set to an optimal value, internally computed based on
+        the lengths of Q and T.
+
+    Returns
+    -------
+    out : numpy.ndarray
+        The sliding dot product between Q and T.
+    """
     if len(Q) == len(T):
         return np.dot(Q, T)
     else:
