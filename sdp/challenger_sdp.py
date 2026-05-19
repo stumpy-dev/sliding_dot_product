@@ -20,8 +20,8 @@ def _compute_block_size(m, n, conv_block_size=None):
 
     conv_block_size : int, default None
         Block size for the convolution. When `conv_block_size` is None,
-        it will be set to an optimal value, internally computed based
-        on the lengths of Q and T.
+        it will be automatically set to an optimal value, internally
+        computed based on the lengths of Q and T.
 
     Returns
     -------
@@ -52,15 +52,19 @@ def _pocketfft_circular_convolve_block(Q, T, conv_block_size):
     # Each block of the convolution contains part of `T`,
     # padded with `len(Q)-1` zeros. Therefore, to compute
     # the number of blocks, we need to consider the number
-    # of elements of `T` that can be covered by each block,
-    # which is `conv_block_size - (m - 1)`.
+    # of elements of `T` that is covered by each block.
     T_block_size = conv_block_size - (m - 1)
     n_blocks = math.ceil(n / T_block_size)
     last_block_start = (n_blocks - 1) * T_block_size
 
+    # To compute the circular convolution between (padded) Q
+    # and each (padded) block of T, the data can be loaded
+    # into a 2D array with `n_blocks + 1` rows,
+    # where the first `n_blocks` rows are the (padded) blocks of T,
+    # and the last row is the (padded) Q.
     tmp = np.empty((n_blocks + 1, conv_block_size), dtype=np.float64)
 
-    # fill with T, block-wise
+    # fill the first `n_blocks` rows with T
     tmp[: n_blocks - 1, :T_block_size] = T[:last_block_start].reshape(
         n_blocks - 1, T_block_size
     )
@@ -68,7 +72,7 @@ def _pocketfft_circular_convolve_block(Q, T, conv_block_size):
     tmp[n_blocks - 1, : n - last_block_start] = T[last_block_start:]
     tmp[n_blocks - 1, n - last_block_start :] = 0.0
 
-    # fill with Q
+    # fill the last row with Q
     tmp[n_blocks, :m] = Q
     tmp[n_blocks, m:] = 0.0
 
@@ -80,6 +84,8 @@ def _pocketfft_circular_convolve_block(Q, T, conv_block_size):
 def _pocketfft_valid_oaconvolve(Q, T, conv_block_size):
     """
     Compute the valid convolution between Q and T using the overlap-add method.
+    This method performs several circular convolutions between Q and blocks of T,
+    and then combines the results to obtain the valid convolution between Q and T
 
     Parameters
     ----------
@@ -102,17 +108,17 @@ def _pocketfft_valid_oaconvolve(Q, T, conv_block_size):
     Each block of the convolution contains part of `T`, padded with `len(Q)-1`
     zeros. Therefore, `conv_block_size` must be at least `len(Q)` so that it
     can cover at least one element of `T` in each block.
-
-    The overlap-add method computes the circular convolution between each block
-    and padded `Q`. The results are then combined to obtain the valid convolution
-    between `Q` and `T`.
     """
     QT_conv_blocks = _pocketfft_circular_convolve_block(Q, T, conv_block_size)
+    # QT_conv_blocks is a 2D array, with `conv_block_size` columns, and
+    # each row is a circular convolution between a padded block of T and a padded Q.
+
     overlap = len(Q) - 1
     out = QT_conv_blocks[:, :-overlap]
 
-    # Add the overlapping parts of the convolution blocks
-    # The head of each block is updated with the tail of the previous block
+    # The head of each block is overlapped with the tail of the previous block
+    # to recover the valid convolution between Q and T for the subsequences
+    # of T that got split across two blocks
     out[1:, :overlap] += QT_conv_blocks[:-1, -overlap:]
 
     return np.reshape(out, (-1,))[len(Q) - 1 : len(T)]
@@ -132,8 +138,8 @@ def _valid_convolve(Q, T, conv_block_size=None):
 
     conv_block_size : int, default None
         Block size for the convolution. When `conv_block_size` is None,
-        it will be set to an optimal value, internally computed based on
-        the lengths of Q and T.
+        it will automatically be set to an optimal value, internally
+        computed based on the lengths of Q and T.
 
     Returns
     -------
@@ -142,8 +148,9 @@ def _valid_convolve(Q, T, conv_block_size=None):
 
     Notes
     -----
-    The valid convolution between Q and T is equivalent to
-    the sliding dot product between Q[::-1] and T.
+    The valid convolution between `Q` and `T` is computed by sliding Q[::-1]
+    over T and computing the dot product at each position when there is a
+    a full overlap between Q and a subsequence of T.
     """
     m = len(Q)
     n = len(T)
@@ -174,8 +181,8 @@ def sliding_dot_product(Q, T, conv_block_size=None):
 
     conv_block_size : int, default None
         Block size for the convolution. When `conv_block_size` is None,
-        it will be set to an optimal value, internally computed based on
-        the lengths of Q and T.
+        it will automatically be set to an optimal value, internally
+        computed based on the lengths of Q and T.
 
     Returns
     -------
