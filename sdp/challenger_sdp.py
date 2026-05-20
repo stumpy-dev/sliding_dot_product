@@ -49,22 +49,19 @@ def _pocketfft_circular_convolve_block(Q, T, conv_block_size):
     m = Q.shape[0]
     n = T.shape[0]
 
-    # Each block of the convolution contains part of `T`,
-    # padded with `len(Q)-1` zeros. Therefore, to compute
-    # the number of blocks, we need to consider the number
-    # of elements of `T` that is covered by each block.
+    # Each block in overlap-add method needs to be padded
+    # with `m-1` zeros. Therefore, the effective block size
+    # for T is `conv_block_size - (m-1)`.
     T_block_size = conv_block_size - (m - 1)
     n_blocks = math.ceil(n / T_block_size)
     last_block_start = (n_blocks - 1) * T_block_size
 
-    # To compute the circular convolution between (padded) Q
-    # and each (padded) block of T, the data can be loaded
-    # into a 2D array with `n_blocks + 1` rows,
-    # where the first `n_blocks` rows are the (padded) blocks of T,
-    # and the last row is the (padded) Q.
+    # To compute the circular convolution between the zero-padded Q
+    # and each zero-padded block of T, the data can be loaded into
+    # a 2D array with `n_blocks + 1` rows, where the first `n_blocks`
+    # rows correspond to the blocks of T, and the last row is the
+    # zero-padded Q.
     tmp = np.empty((n_blocks + 1, conv_block_size), dtype=np.float64)
-
-    # fill the first `n_blocks` rows with T
     tmp[: n_blocks - 1, :T_block_size] = T[:last_block_start].reshape(
         n_blocks - 1, T_block_size
     )
@@ -72,7 +69,6 @@ def _pocketfft_circular_convolve_block(Q, T, conv_block_size):
     tmp[n_blocks - 1, : n - last_block_start] = T[last_block_start:]
     tmp[n_blocks - 1, n - last_block_start :] = 0.0
 
-    # fill the last row with Q
     tmp[n_blocks, :m] = Q
     tmp[n_blocks, m:] = 0.0
 
@@ -96,7 +92,8 @@ def _pocketfft_valid_oaconvolve(Q, T, conv_block_size):
         Time series or sequence.
 
     conv_block_size : int
-        Block size for the convolution. Cannot be less than len(Q).
+        Block size for the overlap-add method.
+        The value cannot be less than len(Q).
 
     Returns
     -------
@@ -109,16 +106,18 @@ def _pocketfft_valid_oaconvolve(Q, T, conv_block_size):
     zeros. Therefore, `conv_block_size` must be at least `len(Q)` so that it
     can cover at least one element of `T` in each block.
     """
+    # performs several circular convolutions between
+    # zero-padded Q and zero-padded blocks of T
+    # and returns a 2D array of the results,
+    # where each row is associated with a block of T
     QT_conv_blocks = _pocketfft_circular_convolve_block(Q, T, conv_block_size)
-    # QT_conv_blocks is a 2D array, with `conv_block_size` columns, and
-    # each row is a circular convolution between a padded block of T and a padded Q.
 
+    # The subsequences at the boundaries of the blocks
+    # are shared between adjacent blocks.
+    # The following logic is needed to reconstruct
+    # the valid convolution between Q and T
     overlap = len(Q) - 1
     out = QT_conv_blocks[:, :-overlap]
-
-    # The head of each block is overlapped with the tail of the previous block
-    # to recover the valid convolution between Q and T for the subsequences
-    # of T that got split across two blocks
     out[1:, :overlap] += QT_conv_blocks[:-1, -overlap:]
 
     return np.reshape(out, (-1,))[len(Q) - 1 : len(T)]
@@ -137,9 +136,9 @@ def _valid_convolve(Q, T, conv_block_size=None):
         Time series or sequence.
 
     conv_block_size : int, default None
-        Block size for the convolution. When `conv_block_size` is None,
-        it will automatically be set to an optimal value, internally
-        computed based on the lengths of Q and T.
+        Block size for the overlap-add method. When `conv_block_size`
+        is None, it will automatically be set to an optimal value,
+        internally computed based on the lengths of Q and T.
 
     Returns
     -------
@@ -180,9 +179,9 @@ def sliding_dot_product(Q, T, conv_block_size=None):
         Time series or sequence.
 
     conv_block_size : int, default None
-        Block size for the convolution. When `conv_block_size` is None,
-        it will automatically be set to an optimal value, internally
-        computed based on the lengths of Q and T.
+        Block size for the overlap-add method. When `conv_block_size`
+        is None, it will automatically be set to an optimal value,
+        internally computed based on the lengths of Q and T.
 
     Returns
     -------
