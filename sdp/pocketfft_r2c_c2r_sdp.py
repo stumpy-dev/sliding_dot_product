@@ -4,6 +4,10 @@ from scipy.fft._pocketfft.basic import r2c, c2r
 
 
 def _pocketfft_valid_convolve(Q, T):
+    """
+    Compute the valid convolution between ``Q`` and ``T``
+    using circular convolution
+    """
     n = len(T)
     m = len(Q)
     next_fast_n = next_fast_len(n, real=True)
