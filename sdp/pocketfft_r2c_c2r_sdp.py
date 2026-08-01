@@ -6,7 +6,7 @@ from scipy.fft._pocketfft.basic import r2c, c2r
 def _pocketfft_valid_convolve(Q, T):
     """
     Compute the valid convolution between ``Q`` and ``T``
-    using circular convolution
+    using circular convolution in the frequency domain
     """
     n = len(T)
     m = len(Q)

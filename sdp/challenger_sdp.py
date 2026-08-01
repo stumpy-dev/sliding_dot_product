@@ -38,8 +38,9 @@ def _compute_block_size(m, n, conv_block_size=None):
             opt_size = -overlap * lambertw(-1 / (2 * math.e * overlap), k=-1).real
             conv_block_size = next_fast_len(math.ceil(opt_size), real=True)
 
-    # Ensure that conv_block_size is at least m, so that
-    # it can cover at least one element of `T` in each block
+    # Each chunk of `T` is padded with `m - 1` zeros to form a convolution block.
+    # Since a chunk (from `T`) must contain at least one element, 
+    # the minimum block size is `m`.
     conv_block_size = max(conv_block_size, m)
 
     return min(conv_block_size, n)
@@ -147,9 +148,8 @@ def _valid_convolve(Q, T, conv_block_size=None):
 
     Notes
     -----
-    The valid convolution between `Q` and `T` is computed by sliding Q[::-1]
-    over T and computing the dot product at each position when there is a
-    a full overlap between Q and a subsequence of T.
+    The valid convolution between ``Q`` and ``T`` is equivalent to
+    the sliding dot product between Q[::-1] and T.
     """
     m = len(Q)
     n = len(T)
