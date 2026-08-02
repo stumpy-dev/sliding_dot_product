@@ -39,7 +39,7 @@ def _compute_block_size(m, n, conv_block_size=None):
             conv_block_size = next_fast_len(math.ceil(opt_size), real=True)
 
     # Each chunk of `T` is padded with `m - 1` zeros to form a convolution block.
-    # Since a chunk (from `T`) must contain at least one element, 
+    # Since a chunk (from `T`) must contain at least one element,
     # the minimum block size is `m`.
     conv_block_size = max(conv_block_size, m)
 
