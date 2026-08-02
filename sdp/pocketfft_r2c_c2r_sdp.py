@@ -1,6 +1,11 @@
 import numpy as np
 from scipy.fft import next_fast_len
-from scipy.fft._pocketfft.basic import r2c, c2r
+
+# _duccfft replaced _pocketfft in scipy 1.18
+try:
+    from scipy.fft._duccfft.basic import c2r, r2c
+except ModuleNotFoundError:  # pragma: no cover
+    from scipy.fft._pocketfft.basic import c2r, r2c
 
 
 def _pocketfft_valid_convolve(Q, T):

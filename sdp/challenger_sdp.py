@@ -1,9 +1,16 @@
 import math
+
 import numpy as np
-from scipy.special import lambertw
 from scipy.fft import next_fast_len
-from scipy.fft._pocketfft.basic import r2c, c2r
+from scipy.special import lambertw
+
 from . import pocketfft_r2c_c2r_sdp
+
+# _duccfft replaced _pocketfft in scipy 1.18
+try:
+    from scipy.fft._duccfft.basic import c2r, r2c
+except ModuleNotFoundError:  # pragma: no cover
+    from scipy.fft._pocketfft.basic import c2r, r2c
 
 
 def _compute_block_size(m, n, conv_block_size=None):
