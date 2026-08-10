@@ -4,32 +4,14 @@ import numpy as np
 from scipy.fft import next_fast_len
 from scipy.special import lambertw
 
+
+from sdp import pocketfft_r2c_c2r_sdp
+
 # _duccfft replaced _pocketfft in scipy 1.18
 try:
     from scipy.fft._duccfft.basic import c2r, r2c
 except ModuleNotFoundError:  # pragma: no cover
     from scipy.fft._pocketfft.basic import c2r, r2c
-
-
-def _pocketfft_valid_convolve(Q, T):
-    """
-    Compute the valid convolution between ``Q`` and ``T``
-    using circular convolution in the frequency domain
-    """
-    n = len(T)
-    m = len(Q)
-    next_fast_n = next_fast_len(n, real=True)
-
-    tmp = np.empty((2, next_fast_n))
-    tmp[0, :m] = Q
-    tmp[0, m:] = 0.0
-    tmp[1, :n] = T
-    tmp[1, n:] = 0.0
-    fft_2d = r2c(True, tmp, axis=-1)
-
-    return c2r(False, np.multiply(fft_2d[0], fft_2d[1]), n=next_fast_n)[
-        len(Q) - 1 : len(T)
-    ]
 
 
 def _compute_block_size(m, n, conv_block_size=None):
@@ -182,7 +164,7 @@ def _valid_convolve(Q, T, conv_block_size=None):
     n = len(T)
     conv_block_size = _compute_block_size(m, n, conv_block_size=conv_block_size)
     if conv_block_size >= n:
-        out = _pocketfft_valid_convolve(Q, T)
+        out = pocketfft_r2c_c2r_sdp._pocketfft_valid_convolve(Q, T)
     else:
         out = _pocketfft_valid_oaconvolve(Q, T, conv_block_size)
 
@@ -219,7 +201,3 @@ def sliding_dot_product(Q, T, conv_block_size=None):
         return np.dot(Q, T)
     else:
         return _valid_convolve(Q[::-1], T, conv_block_size=conv_block_size)
-
-
-if __name__ == "__main__":
-    sliding_dot_product(np.random.rand(3), np.random.rand(10), conv_block_size=3)
