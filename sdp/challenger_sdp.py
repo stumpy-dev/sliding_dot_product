@@ -37,7 +37,17 @@ def _compute_block_size(m, n, conv_block_size=None):
         Block size for the convolution. Will be at least `m` and at most `n`.
     """
     if conv_block_size is None:
-        if m >= n / 2:
+        # `conv_block_size < n` as, otherwise, there is no
+        # point in splitting the larger array of length `n`
+        # `conv_block_size >= 2 * (m-1)` so that
+        # the vectorized operation can be used later.
+        # Therefore: `m < n/2 + 1`
+
+        # Note:
+        # A tighter upper bound can be computed
+        # by considering the range of values returned
+        # by the `lambertw(..., k=-1)` function for m>=3
+        if m >= n / 2 + 1:
             conv_block_size = n
         else:
             # To minimize Eq. 3 in
@@ -54,6 +64,8 @@ def _compute_block_size(m, n, conv_block_size=None):
     # operation at a later step, the minimum block size is set to `2 * (m-1)`
     conv_block_size = max(conv_block_size, 2 * (m - 1))
 
+    # `conv_block_size < n` as, otherwise, there is no
+    # point in splitting the larger array of length `n`
     return min(conv_block_size, n)
 
 
