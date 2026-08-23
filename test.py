@@ -119,7 +119,7 @@ def test_sdp(n_T, remainder, comparator):
         97,
     ]
     n_Q_power2 = [2, 4, 8, 16, 32, 64]
-    n_Q_values = n_Q_prime + n_Q_power2 + [n_T]
+    n_Q_values = n_Q_prime + n_Q_power2 + [n_T - 1, n_T]
     n_Q_values = sorted(n_Q for n_Q in set(n_Q_values) if n_Q <= n_T)
 
     modules = utils.import_sdp_mods()

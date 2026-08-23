@@ -58,6 +58,13 @@ def _compute_block_size(m, n, conv_block_size=None):
             opt_size = -overlap * lambertw(-1 / (2 * math.e * overlap), k=-1).real
             conv_block_size = next_fast_len(math.ceil(opt_size), real=True)
 
+    # ToDo
+    # The computed (presumed) optimal length is based on an approx. cost function
+    # (See Eq. 3 in https://en.wikipedia.org/wiki/Overlap–add_method). However,
+    # we should better plug the obtained value into a "more accurate" cost function
+    # and compared it with the cost of regular circular convolution to see
+    # whether overlap-add should be considered or not.
+
     # Each chunk of `T` is padded with `m - 1` zeros to form a convolution block.
     # Since a chunk (from `T`) must contain at least one element,
     # the minimum block size is `m`. However, to take advantage of vectorized
