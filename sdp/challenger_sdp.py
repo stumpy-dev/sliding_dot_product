@@ -59,9 +59,9 @@ def _compute_block_size(m, n, conv_block_size=None):
             conv_block_size = next_fast_len(math.ceil(opt_size), real=True)
 
     # ToDo
-    # The computed (presumed) optimal length is based on an approx. cost function
-    # (See Eq. 3 in https://en.wikipedia.org/wiki/Overlap–add_method). However,
-    # we should better plug the obtained value into a "more accurate" cost function
+    # The computed (presumed) optimal `conv_block_size` is based on an approximate
+    # cost function (See Eq. 3 in https://en.wikipedia.org/wiki/Overlap–add_method).
+    # However, we should plug the obtained value into a "more accurate" cost function
     # and compared it with the cost of regular circular convolution to see
     # whether overlap-add should be considered or not.
 
@@ -135,7 +135,8 @@ def _pocketfft_valid_oaconvolve(Q, T, conv_block_size):
     -----
     Each block of the convolution contains part of `T`, padded with `len(Q)-1`
     zeros. Therefore, `conv_block_size` must be at least `len(Q)` so that it
-    can cover at least one element of `T` in each block.
+    can cover at least one element of `T` in each block. However, The current
+    implementation requires the `conv_block_size` to be at least `2*(len(Q) - 1)`
     """
     # performs several circular convolutions between
     # zero-padded Q and zero-padded blocks of T
