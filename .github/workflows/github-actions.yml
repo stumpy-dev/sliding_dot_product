@@ -22,7 +22,9 @@ jobs:
     steps:
       - name: Install xmllint on Linux
         if: runner.os == 'Linux'
-        run: sudo apt-get install libxml2-utils
+        run: |
+          sudo apt-get update
+          sudo apt-get install libxml2-utils
             
       - name: Get Safe PYTHON_VERSION
         run:  echo "PYTHON_VERSION=$(curl --location https://devguide.python.org/versions | xmllint --html --xpath '//section[@id="supported-versions"]//table/tbody/tr[count(//section[@id="supported-versions"]//table/tbody/tr[td[.="security"]]/preceding-sibling::*)]/td[1]/p/text()' - 2> /dev/null)" >> $GITHUB_ENV
