@@ -8,7 +8,7 @@ except ModuleNotFoundError:  # pragma: no cover
     from scipy.fft._pocketfft.basic import c2r, r2c
 
 
-def _pocketfft_valid_convolve(Q, T):
+def _valid_convolve(Q, T):
     """
     Compute the valid convolution between ``Q`` and ``T``
     using circular convolution in the frequency domain
@@ -34,4 +34,4 @@ def setup(Q, T):
 
 
 def sliding_dot_product(Q, T):
-    return _pocketfft_valid_convolve(Q[::-1], T)
+    return _valid_convolve(Q[::-1], T)
