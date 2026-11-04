@@ -36,13 +36,6 @@ def _valid_oaconvolve(Q, T, chunk_size):
     The full linear convolution between a chunk (length `chunk_size`) and
     `Q` (length `m`) has length `chunk_size + m - 1`. Consecutive chunk
     results therefore overlap by `m - 1` samples, which are summed.
-
-    This is also why the planned FFT-based version will use circular
-    convolutions of length `N = chunk_size + m - 1`: with the chunk and `Q`
-    both zero-padded to length `N`, the circular convolution does not wrap
-    around and is identical to the full linear convolution.
-
-    Currently, each chunk is convolved directly with `np.convolve`.
     """
     m = Q.shape[0]
     n = T.shape[0]
