@@ -18,10 +18,10 @@ def _valid_oaconvolve(Q, T, chunk_size):
     Parameters
     ----------
     Q : numpy.ndarray
-        Query array or subsequence, of length `m`.
+        Query array or subsequence
 
     T : numpy.ndarray
-        Time series or sequence, of length `n`.
+        Time series or sequence
 
     chunk_size : int
         Number of elements of `T` in each chunk. Must be at least 1.
@@ -29,36 +29,23 @@ def _valid_oaconvolve(Q, T, chunk_size):
     Returns
     -------
     out : numpy.ndarray
-        The valid convolution between Q and T, of length `n - m + 1`.
-
-    Notes
-    -----
-    The full linear convolution between a chunk (length `chunk_size`) and
-    `Q` (length `m`) has length `chunk_size + m - 1`. Consecutive chunk
-    results therefore overlap by `m - 1` samples, which are summed.
+        The valid convolution between Q and T, of length `len(T) - len(Q) + 1`.
     """
     m = Q.shape[0]
     n = T.shape[0]
 
-    # Full linear convolution of Q and T has n + m - 1 elements
-    out = np.zeros(n + m - 1, dtype=np.float64)
-
     # TODO:
     # 1. Vectorize the for-loop
     # 2. Use FFT-based circular convolution
+    out = np.zeros(n + m - 1, dtype=np.float64)
     for i in range(math.ceil(n / chunk_size)):
         start = i * chunk_size
         stop = start + chunk_size
-        stop = min(stop, n)  # the last chunk may be shorter
+        stop = min(stop, n)
         chunk_conv = np.convolve(Q, T[start:stop], mode="full")
-
-        # Overlap-add: chunk_conv has length len(chunk) + m - 1, so it
-        # overlaps the next chunk's result by m - 1 samples
         out[start : start + len(chunk_conv)] += chunk_conv
 
-    # Valid part: indices m - 1 to n - 1 (where Q fully overlaps T),
-    # i.e. n - m + 1 samples
-    return out[m - 1 : n]
+    return out[m - 1 : n]  # valid slice
 
 
 def _valid_convolve(Q, T, chunk_size=None):
@@ -97,7 +84,6 @@ def _valid_convolve(Q, T, chunk_size=None):
         chunk_size = n // 2
 
     if chunk_size < 1 or chunk_size >= n:
-        # TODO: Improve the fallback condition
         # No chunking: convolve Q with the whole of T at once
         return pocketfft_r2c_c2r_sdp._valid_convolve(Q, T)
 
@@ -134,6 +120,6 @@ def sliding_dot_product(Q, T, chunk_size=None):
         # Only one window, so the result is a single dot product
         return np.array([np.dot(Q, T)])
 
-    # Convolution flips its kernel, so flipping Q first turns the
+    # Convolution is a flip-and-slide. So, flipping Q first turns the
     # convolution into a sliding dot product.
     return _valid_convolve(Q[::-1], T, chunk_size=chunk_size)
