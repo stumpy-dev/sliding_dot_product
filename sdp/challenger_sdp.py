@@ -31,21 +31,37 @@ def _valid_oaconvolve(Q, T, chunk_size):
     out : numpy.ndarray
         The valid convolution between Q and T, of length `len(T) - len(Q) + 1`.
     """
-    m = Q.shape[0]
-    n = T.shape[0]
+    m = len(Q)
+    n = len(T)
+    num_chunks = math.ceil(n / chunk_size)
+    next_divisble_n = num_chunks * chunk_size
 
-    # TODO:
-    # 1. Vectorize the for-loop
-    # 2. Use FFT-based circular convolution
-    out = np.zeros(n + m - 1, dtype=np.float64)
-    for i in range(math.ceil(n / chunk_size)):
+    # Zero-pad T so the last chunk is full-sized, then view it as
+    # (num_chunks, chunk_size). This padding only makes the chunks equal-sized;
+    T_padded = np.zeros(next_divisble_n, dtype=np.float64)
+    T_padded[:n] = T
+    chunks = T_padded.reshape(num_chunks, chunk_size)
+
+    # Linear conv of a chunk (of length `chunk_size`) with Q (of length `m``)
+    # has length `N = chunk_size + m - 1`. An N-circular conv of that size equals
+    # the full linear convolution between the chunk and Q. The convolution between
+    # Q and each chunk is computed.
+
+    N = chunk_size + m - 1
+    chunk_convs = np.fft.irfft(
+        np.fft.rfft(chunks, n=N, axis=1) * np.fft.rfft(Q, n=N),
+        n=N,
+        axis=1,
+    )  # shape: (num_chunks, N)
+
+    out = np.zeros(next_divisble_n + m - 1, dtype=np.float64)
+    for i, chunk_conv in enumerate(chunk_convs):
         start = i * chunk_size
-        stop = start + chunk_size
-        stop = min(stop, n)
-        chunk_conv = np.convolve(Q, T[start:stop], mode="full")
-        out[start : start + len(chunk_conv)] += chunk_conv
+        out[start : start + N] += chunk_conv
 
-    return out[m - 1 : n]  # valid slice
+    # Keep only the "valid" part, where Q fully overlaps T (length n - m + 1).
+    # Anything at index >= n comes from the zero padding and is discarded.
+    return out[m - 1 : n]
 
 
 def _valid_convolve(Q, T, chunk_size=None):
