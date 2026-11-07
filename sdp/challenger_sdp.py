@@ -1,8 +1,13 @@
 import math
-
 import numpy as np
 
 from sdp import pocketfft_r2c_c2r_sdp
+
+# _duccfft replaced _pocketfft in scipy 1.18
+try:
+    from scipy.fft._duccfft.basic import c2r, r2c
+except ModuleNotFoundError:  # pragma: no cover
+    from scipy.fft._pocketfft.basic import c2r, r2c
 
 
 def _valid_oaconvolve(Q, T, chunk_size):
@@ -48,8 +53,9 @@ def _valid_oaconvolve(Q, T, chunk_size):
     # Q and each chunk is computed.
 
     N = chunk_size + m - 1
-    chunk_convs = np.fft.irfft(
-        np.fft.rfft(chunks, n=N, axis=1) * np.fft.rfft(Q, n=N),
+    chunk_convs = c2r(
+        False,
+        r2c(True, chunks, n=N, axis=1) * r2c(True, Q, n=N),
         n=N,
         axis=1,
     )  # shape: (num_chunks, N)
