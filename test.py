@@ -119,7 +119,7 @@ def test_sdp(n_T, remainder, comparator):
         97,
     ]
     n_Q_power2 = [2, 4, 8, 16, 32, 64]
-    n_Q_values = n_Q_prime + n_Q_power2 + [n_T]
+    n_Q_values = n_Q_prime + n_Q_power2 + [n_T - 1, n_T]
     n_Q_values = sorted(n_Q for n_Q in set(n_Q_values) if n_Q <= n_T)
 
     modules = utils.import_sdp_mods()
@@ -208,5 +208,21 @@ def test_pyfftw_sdp_max_n():
     ref = naive_sliding_dot_product(Q, T)
 
     np.testing.assert_allclose(comp, ref)
+
+    return
+
+
+def test_oaconvolve_sdp():
+    from sdp.challenger_sdp import sliding_dot_product
+
+    T = np.random.rand(2**10)
+    Q = np.random.rand(2**8)
+
+    m = len(Q)
+    n = len(T)
+    ref = naive_sliding_dot_product(Q, T)
+    for chunk_size in [1, m - 1, m, m + 1, n // 2, n - 1, n, None]:
+        comp = sliding_dot_product(Q, T, chunk_size=chunk_size)
+        np.testing.assert_allclose(comp, ref)
 
     return
