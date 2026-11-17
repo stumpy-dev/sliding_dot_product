@@ -68,5 +68,6 @@ test_unit
 
 clean_up
 test_coverage
+coverage_status=$?
 
-clean_up
+clean_up && exit "$coverage_status"
