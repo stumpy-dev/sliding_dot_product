@@ -58,6 +58,7 @@ test_coverage()
   
     echo "Elapsed Time: $((duration / 60)) minutes and $((duration % 60)) seconds"
     coverage report -m --fail-under=100 --skip-covered --omit=timing.py,utils.py
+    check_errs $?
 }
 
 
